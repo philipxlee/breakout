@@ -1,21 +1,23 @@
 package breakout;
 
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
+import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 /**
- * Feel free to completely change this code or delete it entirely.
- *
- * @author YOUR NAME HERE
+ * Game of Breakout with Variations
+ * @author Philip Lee
  */
+
 public class Main extends Application {
     // useful names for constant values used
     public static final String TITLE = "Breakout will Break Me";
@@ -29,10 +31,9 @@ public class Main extends Application {
     private static final int BALL_START_X = SIZE / 2;
     private static final int BALL_START_Y = SIZE / 2;
     private static final int BALL_VELOCITY_X = 0;
-    private static final int BALL_VELOCITY_Y = 100;
+    private static final int BALL_VELOCITY_Y = 150;
     private static final int PADDLE_WIDTH = 50;
     private static final int PADDLE_HEIGHT = 6;
-
 
     private Scene myScene;
     private Circle myBall;
@@ -50,6 +51,9 @@ public class Main extends Application {
         stage.setScene(myScene);
         stage.setTitle(TITLE);
         stage.show();
+
+        // Event handler
+        myScene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
 
         // Set timeline
         Timeline animation = new Timeline();
@@ -79,6 +83,20 @@ public class Main extends Application {
         return myScene;
     }
 
+    private void handleKeyInput(KeyCode button) {
+        // Check which key was pressed
+        switch(button) {
+            case LEFT:
+            case RIGHT:
+            case UP:
+            case DOWN:
+                updatePaddle(button);
+                break;
+            default:
+                break;
+        }
+    }
+
     private void updateBall(double timestamp) {
 
         // Move ball
@@ -91,7 +109,7 @@ public class Main extends Application {
             double paddleCenter = myPaddle.getX() + myPaddle.getWidth() / 2;
             double ballCenter = myBall.getCenterX();
             double difference = ballCenter - paddleCenter;
-            ballVelocityX += difference / 10; // Adjust X velocity based on hit location
+            ballVelocityX += difference / 5; // Adjust X velocity based on hit location
         }
 
         // Collision with the window boundaries
@@ -100,6 +118,15 @@ public class Main extends Application {
         }
         if (myBall.getCenterY() - BALL_RADIUS <= 0 || myBall.getCenterY() + BALL_RADIUS >= SIZE) {
             ballVelocityY *= -1; // Reverse Y direction
+        }
+    }
+
+    private void updatePaddle(KeyCode button) {
+        switch (button) {
+            case LEFT -> myPaddle.setX(Math.max(myPaddle.getX() - 20, 0));
+            case RIGHT -> myPaddle.setX(Math.min(myPaddle.getX() + 20, SIZE - myPaddle.getWidth()));
+            case UP -> myPaddle.setY(Math.max(myPaddle.getY() - 10, 0));
+            case DOWN -> myPaddle.setY(Math.min(myPaddle.getY() + 10, SIZE - myPaddle.getHeight()));
         }
     }
 }
