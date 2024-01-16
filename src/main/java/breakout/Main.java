@@ -1,17 +1,20 @@
 package breakout;
 
-
+import breakout.Block;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import java.util.Iterator;
 
 /**
  * Game of Breakout with Variations
@@ -19,10 +22,9 @@ import javafx.util.Duration;
  */
 
 public class Main extends Application {
-    // useful names for constant values used
+
     public static final String TITLE = "Breakout will Break Me";
-    public static final Color DUKE_BLUE = new Color(0, 0.188, 0.529, 1);
-    public static final Color YELLOW = new Color(0.236, 0.192, 0.67, 1); // add a 0. infront
+    public static final Color DUKE_BLUE = new Color(0, 0.188, 0.529, 1); // add 0. infront
     public static final int SIZE = 800;
     public static final int FRAMES_PER_SECOND = 60;
     public static final double DELAY = 1.0 / FRAMES_PER_SECOND;
@@ -78,9 +80,30 @@ public class Main extends Application {
         root.getChildren().add(myBall);
         root.getChildren().add(myPaddle);
 
+        // Add blocks
+        setupBlocks(root);
+
         // Create and return scene
         myScene = new Scene(root, width, height, backgroundColor);
         return myScene;
+    }
+
+    private void setupBlocks(Group root) {
+        int rows = 5;
+        int cols = 10;
+        int blockWidth = SIZE / cols;
+        int blockHeight = 20;
+
+        // Create and add blocks
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int x = col * blockWidth;
+                int y = row * blockHeight;
+                int health = 1;
+                Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);
+                root.getChildren().add(block);
+            }
+        }
     }
 
     private void handleKeyInput(KeyCode button) {
@@ -114,10 +137,28 @@ public class Main extends Application {
 
         // Collision with the window boundaries
         if (myBall.getCenterX() - BALL_RADIUS <= 0 || myBall.getCenterX() + BALL_RADIUS >= SIZE) {
-            ballVelocityX *= -1; // Reverse X direction
+            ballVelocityX *= -1;
         }
         if (myBall.getCenterY() - BALL_RADIUS <= 0 || myBall.getCenterY() + BALL_RADIUS >= SIZE) {
-            ballVelocityY *= -1; // Reverse Y direction
+            ballVelocityY *= -1;
+        }
+
+        // Collisions with a block
+        Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
+        while (iter.hasNext()) {
+            Node node = iter.next();
+            if (node instanceof NormalBlock) {
+                Block block = (NormalBlock) node;
+                if (myBall.intersects(block.getBoundsInParent())) {
+                    block.hit();
+                    ballVelocityY *= -1;
+                    if (block.getHealth() <= 0) {
+                        // Remove block
+                        Platform.runLater(() -> ((Group)myScene.getRoot()).getChildren().remove(block));
+                    }
+                    break;
+                }
+            }
         }
     }
 
