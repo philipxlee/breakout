@@ -115,6 +115,10 @@ public class Main extends Application {
             case DOWN:
                 updatePaddle(button);
                 break;
+            case R:
+                myPaddle.setX((SIZE / 2) - (PADDLE_WIDTH / 2));
+                myPaddle.setY(SIZE - 100);
+                break;
             default:
                 break;
         }
@@ -152,7 +156,7 @@ public class Main extends Application {
                 if (myBall.intersects(block.getBoundsInParent())) {
                     block.hit();
                     ballVelocityY *= -1;
-                    if (block.getHealth() <= 0) {
+                    if (block.isDestroyed()) {
                         // Remove block
                         Platform.runLater(() -> ((Group)myScene.getRoot()).getChildren().remove(block));
                     }

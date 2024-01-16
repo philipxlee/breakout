@@ -19,10 +19,6 @@ public abstract class Block extends Rectangle {
         health--;
     }
 
-    public int getHealth() {
-        return health;
-    }
-
     public boolean isDestroyed() {
         return health <= 0;
     }
