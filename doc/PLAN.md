@@ -102,11 +102,20 @@ health of the normal blocks that surrounds it.
 
 ## Class Ideas
 
- * Idea #1
+ * Idea #1: Blocks - an abstract class for basic block functionality and 
+subclasses for different blocks. Blocks include NormalBlock, BadBlock, 
+UnbreakableBlock, PowerUpBlock.
 
- * Idea #2
 
- * Idea #3
+ * Idea #2: Power-ups - an abstract class for the basic features of a power up.
+When a PowerUpBlock is broken, randomly choose to create an object of one of the subclasses
+of this base class, which would represent a power-up. The power-up would then affect the ball 
+speed or other things.
 
- * Idea #4
 
+ * Idea #3: Control - an abstract class to manage the creation of each level. When to switch to
+the next level.
+
+
+ * Idea #4: Levels - an abstract class that creates the basic levels. The subclasses will include
+more sophisticated levels, calling the Blocks class to add more blocks with effects.
