@@ -22,8 +22,8 @@ the end of the window.
 
  * Idea #2: Power up blocks.
 
- * Idea #3: Obstacle blocks - Generates a "bad" block that will create an obstacle
-on the screen.
+ * Idea #3: Obstacle blocks -  A "bad" block that, when hit, will increase the 
+health of the normal blocks that surrounds it.
 
 ## Power-up Ideas
 
@@ -47,12 +47,58 @@ on the screen.
 
 ## Level Descriptions
 
- * Idea #1: 
+ * Level 1:
+   * Consists of basic structures such as regular blocks.
+   * Some blocks may have more health.
+   * For instance, in the text grid below, 0 represents whitespace and elements with
+   a integer bigger than 0 represents a block with a health of that integer.
+   * Note that this may not fully represent the implementation of the actual application.
+ 
+          [1, 2, 3, 3, 3, 3, 3, 2, 1]
+          [1, 1, 2, 3, 3, 3, 2, 1, 1]
+          [1, 1, 1, 2, 3, 2, 1, 1, 1]
+          [0, 0, 1, 1, 1, 1, 1, 0, 0]
+          [0, 0, 0, 1, 1, 1, 0, 0, 0]
+          [0, 0, 0, 0, 1, 0, 0, 0, 0]
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+   
+             ...Rest of display...
 
- * Idea #2
 
- * Idea #3
+ * Level 2:
+   * Introduces bad blocks and power ups.
+   * Bad blocks may increase surrounding block's health.
+   * Power ups drops abilities in a FIFO system, which can be used.
+   * Display power-ups on the screen in a list.
+   * For instance, let power-ups be P and bad blocks be B.
+   * A user should be able to pass a level without breaking the bad blocks.
+   * They can also choose to break the bad block but suffer the penalty.
+   
+          [1, 2, 3, 3, B, 3, 3, 2, 1]
+          [0, 1, P, 3, 3, 3, P, 1, 0]
+          [0, 1, 1, 2, 3, 2, 1, 1, 0]
+          [0, 0, B, 1, 1, 1, B, 0, 0]
+          [0, 0, 0, 1, B, 1, 0, 0, 0]
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+             ...Rest of display...
+
+ * Level 3:
+   * Introduces all the previous elements, but with things like smaller
+   paddles, faster ball speed, and blocks.
+   * There will also be impenetrable obstacle blocks.
+   * For instance, these blocks will be marked with X.
+     
+         [1, X, 3, 3, B, 3, 3, X, 1]
+         [0, X, P, X, 3, X, P, X, 0]
+         [0, 1, 1, 2, X, 2, 1, 1, 0]
+         [0, 0, B, 1, 1, 1, B, 0, 0]
+         [0, 0, 0, 0, 0, 0, 0, 0, 0]
+         [0, 0, 0, 0, 0, 0, 0, 0, 0]
+         [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+            ...Rest of display...
 
 ## Class Ideas
 
