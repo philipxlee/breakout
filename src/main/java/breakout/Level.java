@@ -24,8 +24,6 @@ public abstract class Level {
                 int y = row * blockHeight;
                 int health = 1;
                 Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);
-
-                // Add the StackPane to the root group
                 root.getChildren().add(block);
             }
         }
@@ -53,7 +51,6 @@ class Level2 extends Level {
                 int health = 1;
                 Block block = new BadBlock(x, y, blockWidth, blockHeight, health);
 
-                // Add the StackPane to the root group
                 root.getChildren().add(block);
             }
         }
@@ -63,5 +60,19 @@ class Level2 extends Level {
 class Level3 extends Level {
     public Level3(int levelNumber) {
         super(levelNumber);
+    }
+
+    @Override
+    public void setUpBlocks(Group root) {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int x = col * blockWidth;
+                int y = row * blockHeight;
+                int health = 1;
+                Block block = new UnbreakableBlock(x, y, blockWidth, blockHeight, health);
+
+                root.getChildren().add(block);
+            }
+        }
     }
 }

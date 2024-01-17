@@ -33,15 +33,17 @@ public class Game {
     private Scene myScene;
     private Circle myBall;
     private Rectangle myPaddle;
+    private Main main;
     private int ballVelocityX = BALL_VELOCITY_X;
     private int ballVelocityY = BALL_VELOCITY_Y;
 
-    public void init(Stage stage) {
+    public void init(Stage stage, Main main) {
         // Show scene
         myScene = setupScene(SIZE, SIZE, DUKE_BLUE);
         stage.setScene(myScene);
         stage.setTitle(TITLE);
         stage.show();
+        this.main = main;
 
         // Event handler
         myScene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
@@ -80,6 +82,8 @@ public class Game {
 
     private void handleKeyInput(KeyCode button) {
         // Check which key was pressed
+        Group root = (Group) myScene.getRoot();
+
         switch(button) {
             case LEFT -> myPaddle.setX(Math.max(myPaddle.getX() - 20, 0));
             case RIGHT -> myPaddle.setX(Math.min(myPaddle.getX() + 20, SIZE - myPaddle.getWidth()));
@@ -89,6 +93,7 @@ public class Game {
                 myPaddle.setX((SIZE / 2) - (PADDLE_WIDTH / 2));
                 myPaddle.setY(SIZE - 100);
             }
+            case S -> main.goToNextLevel(root);
         }
     }
 
@@ -119,12 +124,12 @@ public class Game {
         Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
         while (iter.hasNext()) {
             Node node = iter.next();
-            if (node instanceof NormalBlock) {
-                Block block = (NormalBlock) node;
+            if (node instanceof Block) {
+                Block block = (Block) node;
                 if (myBall.intersects(block.getBoundsInParent())) {
                     block.hit();
                     ballVelocityY *= -1;
-                    if (block.isDestroyed()) {
+                    if (!(block instanceof UnbreakableBlock) && block.isDestroyed()) {
                         // Remove block
                         Platform.runLater(() -> ((Group)myScene.getRoot()).getChildren().remove(block));
                     }

@@ -16,10 +16,11 @@ public class Main extends Application {
 
     private int currentLevel = 0;
     private List<Level> levels;
+
     @Override
     public void start(Stage stage) {
         Game game = new Game();
-        game.init(stage);
+        game.init(stage, this);
         Scene myScene = game.getMyScene();
         Group root = (Group) myScene.getRoot();
 
@@ -30,22 +31,26 @@ public class Main extends Application {
         levels.add(new Level3(3));
 
         // Start levels
-        nextLevel(root);
+        goToNextLevel(root);
     }
 
     public void nextLevel(Group root) {
 
-        //TODO: Implement clear blocks
+        // Clear remaining blocks
         clearBlocks(root);
 
         currentLevel++;
-        if (currentLevel >= levels.size()) {
+        if (currentLevel > levels.size()) {
             //TODO: Implement handleGameEnd
             return;
         }
 
         Level level = levels.get(currentLevel - 1);
         level.setUpBlocks(root);
+    }
+
+    public void goToNextLevel(Group root) {
+        nextLevel(root);
     }
 
     private void clearBlocks(Group root) {
