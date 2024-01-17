@@ -30,3 +30,18 @@ class NormalBlock extends Block {
         setFill(Color.GREEN);
     }
 }
+
+class BadBlock extends Block {
+    public BadBlock(int x, int y, int width, int height, int health) {
+        super(x, y, width, height, health);
+        setFill(Color.BLUEVIOLET);
+    }
+}
+
+class UnbreakableBlock extends Block {
+    public UnbreakableBlock(int x, int y, int width, int height, int health) {
+        super(x, y, width, height, health);
+        health = Integer.MAX_VALUE;
+        setFill(Color.DARKSLATEBLUE);
+    }
+}
