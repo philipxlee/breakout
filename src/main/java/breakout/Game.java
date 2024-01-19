@@ -10,15 +10,20 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.awt.*;
 import java.util.Iterator;
+import javafx.scene.text.Text;
 
 public class Game {
 
     public static final String TITLE = "Breakout will Break Me";
     public static final Color DUKE_BLUE = new Color(0, 0.188, 0.529, 1); // add 0. infront
-    public static final int SIZE = 800;
+    public static final int SIZE = 600;
     public static final int FRAMES_PER_SECOND = 60;
     public static final double DELAY = 1.0 / FRAMES_PER_SECOND;
 
@@ -30,6 +35,7 @@ public class Game {
     private static final int PADDLE_WIDTH = 50;
     private static final int PADDLE_HEIGHT = 6;
 
+    private Scene mySplashScene;
     private Scene myScene;
     private Circle myBall;
     private Rectangle myPaddle;
@@ -38,12 +44,38 @@ public class Game {
     private int ballVelocityY = BALL_VELOCITY_Y;
 
     public void init(Stage stage, Main main) {
-        // Show scene
-        myScene = setupScene(SIZE, SIZE, DUKE_BLUE);
-        stage.setScene(myScene);
+        mySplashScene = setupSplashScene(SIZE, SIZE);
+        stage.setScene(mySplashScene);
         stage.setTitle(TITLE);
         stage.show();
         this.main = main;
+
+        mySplashScene.setOnMouseClicked(e -> startGame(stage));
+    }
+
+    public Scene setupSplashScene(int width, int height) {
+        Group root = new Group();
+
+        // TODO: Add your game rules text and styling here
+        Text gameRules = new Text("Game Rules:\n\n- Rule 1\n- Rule 2\n- Rule 3\n\nClick to start.");
+        gameRules.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        gameRules.setX(SIZE / 4); // Position as needed
+        gameRules.setY(SIZE /4); // Position as needed
+        // Add additional styling to gameRules as required
+
+        root.getChildren().add(gameRules);
+
+        Scene scene = new Scene(root, width, height, DUKE_BLUE);
+        return scene;
+    }
+
+    private void startGame(Stage stage) {
+
+        myScene = setupScene(SIZE, SIZE, DUKE_BLUE);
+        stage.setScene(myScene);
+
+        // Start level
+        main.goToNextLevel((Group) myScene.getRoot());
 
         // Event handler
         myScene.setOnKeyPressed(e -> handleKeyInput(e.getCode()));
@@ -54,7 +86,6 @@ public class Game {
         animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> updateBall(DELAY)));
         animation.play();
     }
-
     public Scene setupScene (int width, int height, Color backgroundColor) {
         // Create ball
         myBall = new Circle(BALL_START_X, BALL_START_Y, BALL_RADIUS);
@@ -77,7 +108,7 @@ public class Game {
     }
 
     public Scene getMyScene() {
-        return myScene;
+        return mySplashScene != null ? mySplashScene : myScene;
     }
 
     private void handleKeyInput(KeyCode button) {
@@ -85,8 +116,22 @@ public class Game {
         Group root = (Group) myScene.getRoot();
 
         switch(button) {
-            case LEFT -> myPaddle.setX(Math.max(myPaddle.getX() - 20, 0));
-            case RIGHT -> myPaddle.setX(Math.min(myPaddle.getX() + 20, SIZE - myPaddle.getWidth()));
+            case LEFT -> {
+                if (myPaddle.getX() <= 0) {
+                    myPaddle.setX(SIZE - myPaddle.getWidth());
+                }
+                else {
+                    myPaddle.setX(Math.max(myPaddle.getX() - 20, 0));
+                }
+            }
+            case RIGHT -> {
+                if (myPaddle.getX() + myPaddle.getWidth() >= SIZE) {
+                    myPaddle.setX(0);
+                }
+                else {
+                    myPaddle.setX(Math.min(myPaddle.getX() + 20, SIZE - myPaddle.getWidth()));
+                }
+            }
             case UP -> myPaddle.setY(Math.max(myPaddle.getY() - 10, 0));
             case DOWN -> myPaddle.setY(Math.min(myPaddle.getY() + 10, SIZE - myPaddle.getHeight()));
             case R -> {
@@ -136,6 +181,14 @@ public class Game {
                     break;
                 }
             }
+        }
+
+        // Ball hitting the bottom edge
+        if (myBall.getCenterY() + BALL_RADIUS >= SIZE) {
+            ballVelocityY *= -1;
+            myBall.setCenterX(SIZE / 2);
+            myBall.setCenterY(SIZE / 2);
+//            Platform.exit(); // Quit game
         }
     }
 }

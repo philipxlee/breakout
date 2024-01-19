@@ -29,9 +29,6 @@ public class Main extends Application {
         levels.add(new Level1(1));
         levels.add(new Level2(2));
         levels.add(new Level3(3));
-
-        // Start levels
-        goToNextLevel(root);
     }
 
     public void nextLevel(Group root) {
