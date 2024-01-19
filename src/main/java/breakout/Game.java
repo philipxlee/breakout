@@ -56,12 +56,11 @@ public class Game {
     public Scene setupSplashScene(int width, int height) {
         Group root = new Group();
 
-        // TODO: Add your game rules text and styling here
         Text gameRules = new Text("Game Rules:\n\n- Rule 1\n- Rule 2\n- Rule 3\n\nClick to start.");
         gameRules.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
-        gameRules.setX(SIZE / 4); // Position as needed
-        gameRules.setY(SIZE /4); // Position as needed
-        // Add additional styling to gameRules as required
+        gameRules.setFill(Color.WHITE);
+        gameRules.setX(SIZE / 4);
+        gameRules.setY(SIZE /4);
 
         root.getChildren().add(gameRules);
 
