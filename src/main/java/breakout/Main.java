@@ -1,9 +1,20 @@
 package breakout;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,43 +25,146 @@ import java.util.List;
 
 public class Main extends Application {
 
-    private int currentLevel = 0;
+    private static final int SIZE = 600;
+    private static final int PADDLE_WIDTH = 50;
+    private static final int PADDLE_HEIGHT = 6;
+
+    public static final Color DUKE_BLUE = new Color(0, 0.188, 0.529, 1);
+    public static final int FRAMES_PER_SECOND = 60;
+    public static final double DELAY = 1.0 / FRAMES_PER_SECOND;
+
+    private Scene myStartScreen;
+    private Scene myScene;
+    private Circle myBall;
+    private Rectangle myPaddle;
     private List<Level> levels;
+    private Game game;
+    private Ball ball;
+    private int currentLevel = 0;
 
     @Override
     public void start(Stage stage) {
-        Game game = new Game();
-        game.init(stage, this);
-        Scene myScene = game.getMyScene();
-        Group root = (Group) myScene.getRoot();
+
+        // Display starting splash screen
+        myStartScreen = setGameIntroductionScene(SIZE, SIZE);
+        stage.setScene(myStartScreen);
+        stage.setTitle("Breakout is Breaking Me");
+        stage.show();
+
+        // Create game instances
+        game = new Game();
+        ball = new Ball();
+
+        // Start game
+        myStartScreen.setOnMouseClicked(e -> startGame(stage));
 
         // Create levels
         levels = new ArrayList<>();
         levels.add(new Level1(1));
         levels.add(new Level2(2));
         levels.add(new Level3(3));
+
+    }
+
+    public Scene setGameIntroductionScene(int width, int height) {
+        Group root = new Group();
+
+        Text gameRules = new Text("Welcome!");
+        gameRules.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        gameRules.setFill(Color.WHITE);
+        gameRules.setX(SIZE / 6.0);
+        gameRules.setY(SIZE / 4.0);
+
+        root.getChildren().add(gameRules);
+
+        return new Scene(root, width, height, DUKE_BLUE);
+    }
+
+    private void startGame(Stage stage) {
+
+        // Create scene and make game control correct scenes
+        myScene = setGameScene(SIZE, SIZE, DUKE_BLUE);
+        game.setGameComponents(myScene, myBall, myPaddle, this);
+
+        // Set the scene
+        stage.setScene(myScene);
+        Group root = (Group) myScene.getRoot();
+
+        // Start level splash screen
+        showNextLevelIntroduction(root, stage);
+
+        // Event handler
+        myScene.setOnKeyPressed(e -> game.handleKeyInput(e.getCode(), root, stage));
+
+        // Set timeline
+        Timeline animation = new Timeline();
+        animation.setCycleCount(Timeline.INDEFINITE);
+        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> game.updateBall(DELAY)));
+        animation.play();
+    }
+
+    public Scene setGameScene(int width, int height, Color backgroundColor) {
+        // Create ball
+        Ball ball = new Ball();
+        myBall = ball.createBall();
+
+        // Create paddle
+        myPaddle = new Rectangle((width / 2) - (PADDLE_WIDTH / 2), height - 100, PADDLE_WIDTH, PADDLE_HEIGHT);
+        myPaddle.setArcHeight(10);
+        myPaddle.setArcWidth(10);
+        myPaddle.setFill(Color.RED);
+
+        // Create group
+        Group root = new Group();
+        root.getChildren().add(myBall);
+        root.getChildren().add(myPaddle);
+
+        // Create and return scene
+        myScene = new Scene(root, width, height, backgroundColor);
+        return myScene;
+    }
+
+    public void setLevelIntroductionScreen(int level, Stage stage) {
+        Group root = new Group();
+
+        Text levelText = new Text("Level " + level + " is Starting!");
+        levelText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        levelText.setFill(Color.WHITE);
+        levelText.setX(SIZE / 6.0);
+        levelText.setY(SIZE / 4.0);
+
+        root.getChildren().add(levelText);
+        Scene levelSplashScene = new Scene(root, SIZE, SIZE, DUKE_BLUE);
+        stage.setScene(levelSplashScene);
+
+        levelSplashScene.setOnMouseClicked(e -> {
+            nextLevel((Group) myScene.getRoot());
+            stage.setScene(myScene); // Set back the game scene
+        });
     }
 
     public void nextLevel(Group root) {
 
-        // Clear remaining blocks
+        // Clear remaining blocks and move to next level
         clearBlocks(root);
 
-        currentLevel++;
-        if (currentLevel > levels.size()) {
-            //TODO: Implement handleGameEnd
-            return;
-        }
-
+        // Move to next level if game is not finished
         Level level = levels.get(currentLevel - 1);
         level.setUpBlocks(root);
     }
 
-    public void goToNextLevel(Group root) {
-        nextLevel(root);
+    public void showNextLevelIntroduction(Group root, Stage stage) {
+        if (currentLevel < levels.size()) {
+            currentLevel++;
+            setLevelIntroductionScreen(currentLevel, stage);
+        }
+        else {
+            // TODO: Implement handleGameEnd
+            Platform.exit(); // Quit game
+            return;
+        }
     }
 
-    private void clearBlocks(Group root) {
-        root.getChildren().removeIf(node -> node instanceof Block);
-    }
+    private void clearBlocks(Group root) { root.getChildren().removeIf(node -> node instanceof Block); }
+
 }
