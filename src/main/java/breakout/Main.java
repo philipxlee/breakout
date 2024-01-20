@@ -8,7 +8,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -25,28 +24,24 @@ import java.util.List;
 
 public class Main extends Application {
 
-    private static final int SIZE = 600;
-    private static final int PADDLE_WIDTH = 50;
-    private static final int PADDLE_HEIGHT = 6;
-
+    public static final int SIZE = 600;
     public static final Color DUKE_BLUE = new Color(0, 0.188, 0.529, 1);
     public static final int FRAMES_PER_SECOND = 60;
     public static final double DELAY = 1.0 / FRAMES_PER_SECOND;
 
-    private Scene myStartScreen;
     private Scene myScene;
-    private Circle myBall;
     private Rectangle myPaddle;
     private List<Level> levels;
     private Game game;
     private Ball ball;
+    private Paddle paddle;
     private int currentLevel = 0;
 
     @Override
     public void start(Stage stage) {
 
         // Display starting splash screen
-        myStartScreen = setGameIntroductionScene(SIZE, SIZE);
+        Scene myStartScreen = setGameIntroductionScene(SIZE, SIZE);
         stage.setScene(myStartScreen);
         stage.setTitle("Breakout is Breaking Me");
         stage.show();
@@ -54,6 +49,7 @@ public class Main extends Application {
         // Create game instances
         game = new Game();
         ball = new Ball();
+        paddle = new Paddle();
 
         // Start game
         myStartScreen.setOnMouseClicked(e -> startGame(stage));
@@ -63,7 +59,6 @@ public class Main extends Application {
         levels.add(new Level1(1));
         levels.add(new Level2(2));
         levels.add(new Level3(3));
-
     }
 
     public Scene setGameIntroductionScene(int width, int height) {
@@ -84,7 +79,7 @@ public class Main extends Application {
 
         // Create scene and make game control correct scenes
         myScene = setGameScene(SIZE, SIZE, DUKE_BLUE);
-        game.setGameComponents(myScene, myBall, myPaddle, this);
+        game.setGameComponents(myScene, ball, paddle, this);
 
         // Set the scene
         stage.setScene(myScene);
@@ -104,20 +99,10 @@ public class Main extends Application {
     }
 
     public Scene setGameScene(int width, int height, Color backgroundColor) {
-        // Create ball
-        Ball ball = new Ball();
-        myBall = ball.createBall();
-
-        // Create paddle
-        myPaddle = new Rectangle((width / 2) - (PADDLE_WIDTH / 2), height - 100, PADDLE_WIDTH, PADDLE_HEIGHT);
-        myPaddle.setArcHeight(10);
-        myPaddle.setArcWidth(10);
-        myPaddle.setFill(Color.RED);
-
         // Create group
         Group root = new Group();
-        root.getChildren().add(myBall);
-        root.getChildren().add(myPaddle);
+        root.getChildren().add(ball.getBall());
+        root.getChildren().add(paddle.getPaddle());
 
         // Create and return scene
         myScene = new Scene(root, width, height, backgroundColor);
