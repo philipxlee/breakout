@@ -16,6 +16,7 @@ public class Game {
     private Paddle myPaddle;
     private Main main;
     private int lives = 3;
+    private int score = 0;
 
 
     public void setGameComponents(Scene scene, Ball ball, Paddle paddle, Main main) {
@@ -45,19 +46,24 @@ public class Game {
         resetBall();
     }
 
-    private void handleBallAtBottomEdge() {
+    private void handleBallAtBottomEdge(Stage stage) {
         if (myBall.getCenterY() + BALL_RADIUS >= SIZE) {
             resetBall();
+            myPaddle.resetPaddlePosition();
             lives--;
+            main.updateLives(lives);
         }
         if (lives == 0) {
-            Platform.exit(); // Quit game
+            main.showGameOverScreen(stage, "Sorry :(\nYou lost...");
         }
     }
 
+    public void addScore() { score++; }
+    public int getScore() { return score; }
+    public int getLives() { return lives; }
     public void toggleBallSpeed() { myBall.handleBallSpeed(); }
-    public void updateBall(double timestamp) {
+    public void updateBall(double timestamp, Stage stage) {
         myBall.handleBallMovement(timestamp, myPaddle, myScene);
-        handleBallAtBottomEdge();
+        handleBallAtBottomEdge(stage);
     }
 }

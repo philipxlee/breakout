@@ -11,12 +11,20 @@ public abstract class Block extends Rectangle {
         this.setX(x);
         this.setY(y);
         this.health = health;
-        this.setStroke(Color.BLACK); // Outline color
-        this.setStrokeWidth(1.0);
+        updateBlockColor();
     }
 
     public void hit() {
         health--;
+        updateBlockColor();
+    }
+
+    private void updateBlockColor() {
+        switch (health) {
+            case 3 -> setFill(Color.RED);
+            case 2 -> setFill(Color.ORANGE);
+            case 1 -> setFill(Color.GREEN);
+        }
     }
 
     public boolean isDestroyed() {

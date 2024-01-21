@@ -4,10 +4,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -30,11 +32,12 @@ public class Main extends Application {
     public static final double DELAY = 1.0 / FRAMES_PER_SECOND;
 
     private Scene myScene;
-    private Rectangle myPaddle;
     private List<Level> levels;
     private Game game;
     private Ball ball;
     private Paddle paddle;
+    private Text scoreText;
+    private Text livesText;
     private int currentLevel = 0;
 
     @Override
@@ -80,6 +83,7 @@ public class Main extends Application {
         // Create scene and make game control correct scenes
         myScene = setGameScene(SIZE, SIZE, DUKE_BLUE);
         game.setGameComponents(myScene, ball, paddle, this);
+        ball.setBallComponents(game, this);
 
         // Set the scene
         stage.setScene(myScene);
@@ -94,7 +98,7 @@ public class Main extends Application {
         // Set timeline
         Timeline animation = new Timeline();
         animation.setCycleCount(Timeline.INDEFINITE);
-        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> game.updateBall(DELAY)));
+        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> game.updateBall(DELAY, stage)));
         animation.play();
     }
 
@@ -104,9 +108,31 @@ public class Main extends Application {
         root.getChildren().add(ball.getBall());
         root.getChildren().add(paddle.getPaddle());
 
+        // Create scoreboard showing score and lives
+        VBox overlay = createScoreboard();
+        root.getChildren().add(overlay);
+
         // Create and return scene
         myScene = new Scene(root, width, height, backgroundColor);
         return myScene;
+    }
+
+    private VBox createScoreboard() {
+        // Initialize score and lives text
+        scoreText = new Text("Score: 0");
+        scoreText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        scoreText.setFill(Color.WHITE);
+        livesText = new Text("Lives: " + game.getLives()); // Assuming getLives() method in Game class
+        livesText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        livesText.setFill(Color.WHITE);
+
+        // Create a VBox for score and lives
+        VBox overlay = new VBox(5); // 5 is the spacing between elements
+        overlay.setAlignment(Pos.TOP_LEFT); // Positioning the overlay
+        overlay.setPadding(new Insets(10)); // Padding for the overlay
+        overlay.getChildren().addAll(scoreText, livesText);
+        overlay.setPickOnBounds(false); // Allows clicks to pass through to the gamee
+        return overlay;
     }
 
     public void setLevelIntroductionScreen(int level, Stage stage) {
@@ -129,13 +155,9 @@ public class Main extends Application {
     }
 
     public void nextLevel(Group root) {
-
-        // Clear remaining blocks and move to next level
         clearBlocks(root);
-
-        // Move to next level if game is not finished
         Level level = levels.get(currentLevel - 1);
-        level.setUpBlocks(root);
+        level.showBlockLayout(root);
     }
 
     public void showNextLevelIntroduction(Group root, Stage stage) {
@@ -144,12 +166,27 @@ public class Main extends Application {
             setLevelIntroductionScreen(currentLevel, stage);
         }
         else {
-            // TODO: Implement handleGameEnd
-            Platform.exit(); // Quit game
-            return;
+            showGameOverScreen(stage, "Congratulations! :)\nYou won!");
         }
     }
 
+    void showGameOverScreen(Stage stage, String message) {
+        Group root = new Group();
+
+        Text gameOverText = new Text(message);
+        gameOverText.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
+        gameOverText.setFill(Color.WHITE);
+        gameOverText.setX(SIZE / 4.0);
+        gameOverText.setY(SIZE / 3.0);
+
+        root.getChildren().add(gameOverText);
+        Scene gameOverScene = new Scene(root, SIZE, SIZE, DUKE_BLUE);
+
+        stage.setScene(gameOverScene);
+    }
+
+    public void updateScore(int newScore) { scoreText.setText("Score: " + newScore); }
+    public void updateLives(int newRemainingLives) { livesText.setText("Lives: " + newRemainingLives); }
     private void clearBlocks(Group root) { root.getChildren().removeIf(node -> node instanceof Block); }
 
 }

@@ -19,11 +19,18 @@ public class Ball {
     private int ballVelocityX = BALL_VELOCITY_X;
     private int ballVelocityY = BALL_VELOCITY_Y;
     private final Circle myBall;
+    private Game game;
+    private Main main;
     private boolean slowed = false;
 
     public Ball() {
         myBall = new Circle(BALL_START_X, BALL_START_Y, BALL_RADIUS);
         myBall.setFill(Color.YELLOW);
+    }
+
+    public void setBallComponents(Game game, Main main) {
+        this.game = game;
+        this.main = main;
     }
 
     public void resetBall() {
@@ -84,9 +91,12 @@ public class Ball {
                 if (myBall.intersects(block.getBoundsInParent())) {
                     block.hit();
                     ballVelocityY *= -1;
-                    if (!(block instanceof UnbreakableBlock) && block.isDestroyed()) {
-                        // Remove block
-                        Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
+                    if (!(block instanceof UnbreakableBlock)) {
+                        game.addScore();
+                        main.updateScore(game.getScore());
+                        if (block.isDestroyed()) {
+                            Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
+                        }
                     }
                     break;
                 }

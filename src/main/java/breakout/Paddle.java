@@ -10,7 +10,7 @@ public class Paddle {
     private static final int PADDLE_HEIGHT = 6;
     private static final int SIZE = 600;
 
-    private Rectangle myPaddle;
+    private final Rectangle myPaddle;
 
     public Paddle() {
         myPaddle = new Rectangle((Game.SIZE / 2.0) - (PADDLE_WIDTH / 2.0), Game.SIZE - 100, PADDLE_WIDTH, PADDLE_HEIGHT);
@@ -18,7 +18,6 @@ public class Paddle {
         myPaddle.setArcWidth(10);
         myPaddle.setFill(Color.RED);
     }
-
 
     public void resetPaddlePosition() {
         myPaddle.setX((SIZE / 2.0) - (PADDLE_WIDTH / 2.0));
