@@ -7,53 +7,39 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
-public abstract class Level {
-
-    protected int levelNumber;
-    protected int blockWidth = Game.SIZE / 10;
-    protected int blockHeight = 30;
+public class Level {
+    private final int INFINITE_HEALTH = 1_000_000;
     protected final int X_OFFSET = 30;
     protected final int Y_OFFSET = 50;
-    protected String pathName = "";
+    protected int levelNumber;
+    protected String pathName;
+    protected int blockWidth = Game.SIZE / 10;
+    protected int blockHeight = 30;
     protected HashMap<Integer, Color> colorMap = new HashMap<>() {{
         put(3, Color.RED);
         put(2, Color.ORANGE);
         put(1, Color.GREEN);
     }};;
 
-    public Level(int levelNumber) { this.levelNumber = levelNumber; }
-    public void showBlockLayout(Group root) {}
+    public Level(int levelNumber, String pathName) {
+        this.levelNumber = levelNumber;
+        this.pathName = pathName;
+    }
+
+    public void showBlockLayout(Group root) { setBlockLayout(root, this.pathName); }
+
     public void setBlockLayout(Group root, String pathname) {
         try (BufferedReader reader = new BufferedReader(new FileReader(pathName))) {
             String line;
             int row = 0;
 
             while ((line = reader.readLine()) != null) {
-                line = line.trim(); // Trim the line
-                if (line.isEmpty()) continue; // Skip empty lines
-
                 String[] values = line.split("\\s+"); // Split on one or more spaces
-
                 for (int i = 0; i < values.length; i++) {
-                    if (values[i].isEmpty()) continue; // Skip empty values
-
+                    if (values[i].isEmpty() || values[i].equals("0")) continue;
                     int x = (i * blockWidth) + X_OFFSET;
                     int y = (row * blockHeight) + Y_OFFSET;
-
-                    if (!values[i].equals("0")) {
-                        if (values[i].equals("X")) {
-                            // Create unbreakable block
-                            Block block = new UnbreakableBlock(x, y, blockWidth, blockHeight, 999);
-                            root.getChildren().add(block);
-                        } else {
-                            // Create normal block
-                            int health = Integer.parseInt(values[i]);
-                            Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);
-                            Color color = colorMap.get(health);
-                            block.setFill(color);
-                            root.getChildren().add(block);
-                        }
-                    }
+                    generateBlocks(root, values, i, x, y);
                 }
                 row++;
             }
@@ -62,39 +48,16 @@ public abstract class Level {
         }
     }
 
-}
-
-
-class Level1 extends Level {
-    public Level1(int levelNumber) { super(levelNumber); }
-
-    @Override
-    public void showBlockLayout(Group root) {
-        this.pathName = "src/main/resources/Level1Layout";
-        setBlockLayout(root, pathName);
-    }
-}
-
-class Level2 extends Level {
-    public Level2(int levelNumber) {
-        super(levelNumber);
-    }
-
-    @Override
-    public void showBlockLayout(Group root) {
-        this.pathName = "src/main/resources/Level2Layout";
-        setBlockLayout(root, pathName);
-    }
-}
-
-class Level3 extends Level {
-    public Level3(int levelNumber) {
-        super(levelNumber);
-    }
-
-    @Override
-    public void showBlockLayout(Group root) {
-        this.pathName = "src/main/resources/Level3Layout";
-        setBlockLayout(root, pathName);
+    private void generateBlocks(Group root, String[] values, int i, int x, int y) {
+        if (values[i].equals("X")) {
+            Block block = new UnbreakableBlock(x, y, blockWidth, blockHeight, INFINITE_HEALTH);
+            root.getChildren().add(block);
+        } else {
+            int health = Integer.parseInt(values[i]);
+            Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);
+            Color color = colorMap.get(health);
+            block.setFill(color);
+            root.getChildren().add(block);
+        }
     }
 }

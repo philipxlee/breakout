@@ -3,7 +3,6 @@ package breakout;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -59,9 +58,9 @@ public class Main extends Application {
 
         // Create levels
         levels = new ArrayList<>();
-        levels.add(new Level1(1));
-        levels.add(new Level2(2));
-        levels.add(new Level3(3));
+        levels.add(new Level(1, "src/main/resources/Level1Layout"));
+        levels.add(new Level(2, "src/main/resources/Level2Layout"));
+        levels.add(new Level(3, "src/main/resources/Level3Layout"));
     }
 
     public Scene setGameIntroductionScene(int width, int height) {
@@ -98,7 +97,7 @@ public class Main extends Application {
         // Set timeline
         Timeline animation = new Timeline();
         animation.setCycleCount(Timeline.INDEFINITE);
-        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> game.updateBall(DELAY, stage)));
+        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> { if (!game.isGameOver()) game.updateBall(DELAY, root, stage);}));
         animation.play();
     }
 
@@ -127,11 +126,11 @@ public class Main extends Application {
         livesText.setFill(Color.WHITE);
 
         // Create a VBox for score and lives
-        VBox overlay = new VBox(5); // 5 is the spacing between elements
-        overlay.setAlignment(Pos.TOP_LEFT); // Positioning the overlay
-        overlay.setPadding(new Insets(10)); // Padding for the overlay
+        VBox overlay = new VBox(5);
+        overlay.setAlignment(Pos.TOP_LEFT);
+        overlay.setPadding(new Insets(10));
         overlay.getChildren().addAll(scoreText, livesText);
-        overlay.setPickOnBounds(false); // Allows clicks to pass through to the gamee
+        overlay.setPickOnBounds(false);
         return overlay;
     }
 
@@ -156,6 +155,7 @@ public class Main extends Application {
 
     public void nextLevel(Group root) {
         clearBlocks(root);
+        ball.resetBall();
         Level level = levels.get(currentLevel - 1);
         level.showBlockLayout(root);
     }

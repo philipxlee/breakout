@@ -1,6 +1,5 @@
 package breakout;
 
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -10,14 +9,27 @@ import javafx.stage.Stage;
 public class Game {
 
     public static final int SIZE = 600;
+
     private static final int BALL_RADIUS = 5;
+    private int lives = 3;
+    private int score = 0;
+    private boolean isGameOver = false;
     private Scene myScene;
     private Ball myBall;
     private Paddle myPaddle;
     private Main main;
-    private int lives = 3;
-    private int score = 0;
 
+    public void addScore() { score++; }
+    public void toggleBallSpeed() { myBall.handleBallSpeed(); }
+    public void setGameOver(boolean gameOver) { isGameOver = gameOver; }
+    public int getScore() { return score; }
+    public int getLives() { return lives; }
+    public boolean isGameOver() { return isGameOver; }
+
+    public void updateBall(double timestamp, Group root, Stage stage) {
+        myBall.handleBallMovement(timestamp, myPaddle, myScene, root, stage);
+        handleBallAtBottomEdge(stage);
+    }
 
     public void setGameComponents(Scene scene, Ball ball, Paddle paddle, Main main) {
         this.myScene = scene;
@@ -34,17 +46,25 @@ public class Game {
             case DOWN -> myPaddle.handlePaddleDownMovement();
             case R -> myPaddle.resetPaddlePosition();
             case SHIFT -> toggleBallSpeed();
-            case L -> lives++;
+            case L -> main.updateLives(++lives);
             case S -> skipLevel(root, stage);
         }
     }
 
-    private void resetBall() { myBall.resetBall(); }
-    private void skipLevel(Group root, Stage stage) {
-        main.showNextLevelIntroduction(root, stage);
-        myPaddle.resetPaddlePosition();
-        resetBall();
+    public void checkLevelCompletion(Group root, Stage stage) {
+        // Check if all destructible blocks are cleared
+        boolean levelCleared = root.getChildren().stream()
+                .filter(node -> node instanceof Block)
+                .map(node -> (Block) node)
+                .noneMatch(block -> !block.isDestroyed() && !(block instanceof UnbreakableBlock));
+        if (levelCleared) {
+            main.showNextLevelIntroduction(root, stage);
+            myBall.resetBall();
+            myPaddle.resetPaddlePosition();
+        }
     }
+
+    private void resetBall() { myBall.resetBall(); }
 
     private void handleBallAtBottomEdge(Stage stage) {
         if (myBall.getCenterY() + BALL_RADIUS >= SIZE) {
@@ -53,17 +73,15 @@ public class Game {
             lives--;
             main.updateLives(lives);
         }
-        if (lives == 0) {
+        if (lives == 0 && !isGameOver) {
+            setGameOver(true);
             main.showGameOverScreen(stage, "Sorry :(\nYou lost...");
         }
     }
 
-    public void addScore() { score++; }
-    public int getScore() { return score; }
-    public int getLives() { return lives; }
-    public void toggleBallSpeed() { myBall.handleBallSpeed(); }
-    public void updateBall(double timestamp, Stage stage) {
-        myBall.handleBallMovement(timestamp, myPaddle, myScene);
-        handleBallAtBottomEdge(stage);
+    private void skipLevel(Group root, Stage stage) {
+        main.showNextLevelIntroduction(root, stage);
+        myPaddle.resetPaddlePosition();
+        resetBall();
     }
 }

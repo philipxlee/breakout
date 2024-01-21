@@ -35,7 +35,6 @@ public abstract class Block extends Rectangle {
 class NormalBlock extends Block {
     public NormalBlock(int x, int y, int width, int height, int health) {
         super(x, y, width, height, health);
-        setFill(Color.GREEN);
     }
 }
 

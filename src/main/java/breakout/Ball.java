@@ -6,6 +6,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
 import java.util.Iterator;
 
 public class Ball {
@@ -52,7 +54,7 @@ public class Ball {
         }
     }
 
-    public void handleBallMovement(double timestamp, Paddle myPaddle, Scene myScene) {
+    public void handleBallMovement(double timestamp, Paddle myPaddle, Scene myScene, Group root, Stage stage) {
         // Move ball
         myBall.setCenterX(myBall.getCenterX() + ballVelocityX * timestamp);
         myBall.setCenterY(myBall.getCenterY() + ballVelocityY * timestamp);
@@ -60,7 +62,7 @@ public class Ball {
         // Handle collisions
         handleBallPanelCollision(myPaddle);
         handleBallWindowCollision();
-        handleBallBlockCollision(myScene);
+        handleBallBlockCollision(myScene, root, stage);
     }
 
     private void handleBallWindowCollision() {
@@ -78,29 +80,39 @@ public class Ball {
             double paddleCenter = myPaddle.getX() + myPaddle.getWidth() / 2;
             double ballCenter = myBall.getCenterX();
             double difference = ballCenter - paddleCenter;
-            ballVelocityX += (int) (difference / 5); // Adjust X velocity based on hit location
+            ballVelocityX += (int) (difference); // Adjust X velocity based on hit location
         }
     }
 
-    private void handleBallBlockCollision(Scene myScene) {
+    private void handleBallBlockCollision(Scene myScene, Group root, Stage stage) {
         Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
         while (iter.hasNext()) {
             Node node = iter.next();
             if (node instanceof Block) {
                 Block block = (Block) node;
-                if (myBall.intersects(block.getBoundsInParent())) {
-                    block.hit();
-                    ballVelocityY *= -1;
-                    if (!(block instanceof UnbreakableBlock)) {
-                        game.addScore();
-                        main.updateScore(game.getScore());
-                        if (block.isDestroyed()) {
-                            Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
-                        }
-                    }
-                    break;
-                }
+                if (updateBlockHealthAndVelocity(myScene, root, stage, block)) break;
             }
+        }
+    }
+
+    private boolean updateBlockHealthAndVelocity(Scene myScene, Group root, Stage stage, Block block) {
+        if (myBall.intersects(block.getBoundsInParent())) {
+            block.hit();
+            ballVelocityY *= -1;
+            checkForUnbreakableBlock(myScene, root, stage, block);
+            return true;
+        }
+        return false;
+    }
+
+    private void checkForUnbreakableBlock(Scene myScene, Group root, Stage stage, Block block) {
+        if (!(block instanceof UnbreakableBlock)) {
+            game.addScore();
+            main.updateScore(game.getScore());
+            if (block.isDestroyed()) {
+                Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
+            }
+            game.checkLevelCompletion(root, stage);
         }
     }
 
