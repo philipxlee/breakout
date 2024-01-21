@@ -170,7 +170,7 @@ public class Main extends Application {
         }
     }
 
-    void showGameOverScreen(Stage stage, String message) {
+    public void showGameOverScreen(Stage stage, String message) {
         Group root = new Group();
 
         Text gameOverText = new Text(message);

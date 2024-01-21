@@ -14,7 +14,7 @@ public class Ball {
 
     private static final int BALL_START_X = Game.SIZE / 2;
     private static final int BALL_START_Y = Game.SIZE / 2;
-    private static final int BALL_RADIUS = 5;
+    private static final int BALL_RADIUS = 7;
     private static final int BALL_VELOCITY_X = 0;
     private static final int BALL_VELOCITY_Y = 150;
 
