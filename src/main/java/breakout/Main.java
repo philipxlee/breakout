@@ -38,6 +38,7 @@ public class Main extends Application {
     private Paddle paddle;
     private Text scoreText;
     private Text livesText;
+    private Text powerUpsText;
     private int currentLevel = 0;
 
     @Override
@@ -123,18 +124,21 @@ public class Main extends Application {
 
     private VBox createScoreboard() {
         // Initialize score and lives text
-        scoreText = new Text("Score: 0");
+        scoreText = new Text("Score: " + game.getScore());
         scoreText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         scoreText.setFill(Color.WHITE);
         livesText = new Text("Lives: " + game.getLives()); // Assuming getLives() method in Game class
         livesText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         livesText.setFill(Color.WHITE);
+        powerUpsText = new Text("Power-ups: " + game.getPowerupUsed());
+        powerUpsText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        powerUpsText.setFill(Color.WHITE);
 
         // Create a VBox for score and lives
         VBox overlay = new VBox(5);
         overlay.setAlignment(Pos.TOP_LEFT);
         overlay.setPadding(new Insets(10));
-        overlay.getChildren().addAll(scoreText, livesText);
+        overlay.getChildren().addAll(scoreText, livesText, powerUpsText);
         overlay.setPickOnBounds(false);
         return overlay;
     }
@@ -142,7 +146,7 @@ public class Main extends Application {
     public void setLevelIntroductionScreen(int level, Stage stage) {
         Group root = new Group();
 
-        Text levelText = new Text("Level " + level + " is Starting!");
+        Text levelText = new Text("Level " + level + " is starting!\n\nCurrent score: " + game.getScore() + "\n\nLives remaining: " + game.getLives() + "\n\nPowerups used: " + game.getPowerupUsed());
         levelText.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
         levelText.setFill(Color.WHITE);
         levelText.setX(SIZE / 6.0);
@@ -172,7 +176,7 @@ public class Main extends Application {
             setLevelIntroductionScreen(currentLevel, stage);
         }
         else {
-            showGameOverScreen(stage, "Congratulations! :)\nYou won!");
+            showGameOverScreen(stage, "Congratulations! :)\nYou won!\nScore: " + game.getScore() + "\nLives Remaining: " + game.getLives() + "\nPowerups used: " + game.getPowerupUsed());
         }
     }
 
@@ -193,7 +197,8 @@ public class Main extends Application {
 
     public void updateScore(int newScore) { scoreText.setText("Score: " + newScore); }
     public void updateLives(int newRemainingLives) { livesText.setText("Lives: " + newRemainingLives); }
+    public void updatePowerupsUsed(int newPowerupUsed) { powerUpsText.setText("Power-ups: " + newPowerupUsed); }
     private void clearBlocks(Group root) { root.getChildren().removeIf(node -> node instanceof Block); }
-    private void clearPowerups(Group root) { root.getChildren().removeIf(node -> node instanceof Circle && "Powerup".equals(node.getId()));}
+    public void clearPowerups(Group root) { root.getChildren().removeIf(node -> node instanceof Circle && "Powerup".equals(node.getId()));}
 
 }

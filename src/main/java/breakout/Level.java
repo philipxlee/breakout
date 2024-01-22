@@ -8,13 +8,14 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Level {
+
     private final int INFINITE_HEALTH = 1_000_000;
     protected final int X_OFFSET = 30;
     protected final int Y_OFFSET = 50;
     protected int levelNumber;
-    protected String pathName;
     protected int blockWidth = Game.SIZE / 10;
     protected int blockHeight = 30;
+    protected String pathName;
     protected HashMap<Integer, Color> colorMap = new HashMap<>() {{
         put(3, Color.RED);
         put(2, Color.ORANGE);

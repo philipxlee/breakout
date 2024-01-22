@@ -19,13 +19,14 @@ public class Game {
     private static final int BALL_RADIUS = Ball.BALL_RADIUS;
     private int lives = 3;
     private int score = 0;
+    private int powerupUsed = 0;
     private boolean isGameOver = false;
     private Scene myScene;
     private Ball myBall;
     private Paddle myPaddle;
     private Main main;
 
-    public void addScore() { score++; }
+    public void addScore(int add) { score += add; }
     public void toggleBallSpeed() { myBall.handleBallSpeed(); }
     public void setGameOver(boolean gameOver) { isGameOver = gameOver; }
     public int getScore() { return score; }
@@ -70,16 +71,17 @@ public class Game {
 
     private void resetBall() { myBall.resetBall(); }
 
-    private void handleBallAtBottomEdge(Stage stage) {
+    private void handleBallAtBottomEdge(Stage stage, Group root) {
         if (myBall.getCenterY() + BALL_RADIUS >= SIZE) {
             resetBall();
+            main.clearPowerups(root);
             myPaddle.resetPaddlePosition();
             lives--;
             main.updateLives(lives);
         }
         if (lives == 0 && !isGameOver) {
             setGameOver(true);
-            main.showGameOverScreen(stage, "Sorry :(\nYou lost...");
+            main.showGameOverScreen(stage, "Sorry :(\nYou lost...\nScore: " + getScore() + "\nLives Remaining: " + getLives() + "\nPowerups used: " + getPowerupUsed());
         }
     }
 
@@ -91,18 +93,28 @@ public class Game {
 
     public void updateBall(double timestamp, Group root, Stage stage) {
         myBall.handleBallMovement(timestamp, myPaddle, myScene, root, stage);
-        handleBallAtBottomEdge(stage);
+        handleBallAtBottomEdge(stage, root);
 
         // Update each active powerup
         Iterator<Powerup> iterator = activePowerups.iterator();
         while (iterator.hasNext()) {
             Powerup powerup = iterator.next();
             powerup.handlePowerupMovement(myScene, root, stage);
-            if (powerup.isCollected() || powerup.isOffScreen()) {
+            if (powerup.isCollected()) {
+                System.out.println("Collected");
+                addPowerupUsed();
+                addScore(5);
+                main.updatePowerupsUsed(getPowerupUsed());
+                main.updateScore(getScore());
+                iterator.remove();
+            }
+            if (powerup.isOffScreen()) {
                 iterator.remove();
             }
         }
     }
+
+    public int getPowerupUsed() { return powerupUsed; }
 
     public void createPowerup(Block block, Group root) {
         if (block instanceof NormalBlock && Math.random() < 0.2) { // 20% chance for powerup
@@ -111,6 +123,8 @@ public class Game {
             activePowerups.add(powerup);
         }
     }
+
+    private void addPowerupUsed() { powerupUsed++; }
 
     public void handleBadBlockEffect(Group root) {
         // Create a list to store eligible blocks
@@ -133,7 +147,6 @@ public class Game {
             block.addHealth(1);
         }
     }
-
 
     public Game getGame() { return this; }
     public Paddle getPaddle() { return myPaddle; }

@@ -115,7 +115,7 @@ public class Ball {
 
     private void checkForUnbreakableBlock(Scene myScene, Group root, Stage stage, Block block) {
         if (!(block instanceof UnbreakableBlock)) {
-            game.addScore();
+            game.addScore(1);
             main.updateScore(game.getScore());
             if (block.isDestroyed()) {
                 game.createPowerup(block, root);
@@ -127,6 +127,13 @@ public class Ball {
 
 
 
+    public void enlargeBallSize() {
+        myBall.setRadius(BALL_RADIUS * 2);
+    }
+
+    public void resetBallSize() {
+        myBall.setRadius(BALL_RADIUS);
+    }
     public Circle getBall() { return myBall; }
     public double getCenterX() { return myBall.getCenterX(); }
     public double getCenterY() { return myBall.getCenterY(); }

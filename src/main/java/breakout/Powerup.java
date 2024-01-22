@@ -48,12 +48,10 @@ public class Powerup {
 
     public void handlePowerupPaddleCollision(Paddle myPaddle) {
         if (myPowerup.intersects(myPaddle.getBoundsInLocal())) {
-            switch(rand.nextInt(1,3)) {
+            switch(rand.nextInt(1,4)) {
                 case 1 -> extendPaddle();
-                case 2 -> {
-                    System.out.println("Speedy");
-                    speedPaddle();
-                }
+                case 2 -> speedPaddle();
+                case 3-> enlargeBall();
             }
         }
     }
@@ -81,19 +79,15 @@ public class Powerup {
         wait.play();
     }
 
-
-    public Circle getPowerupCircle() {
-        return myPowerup;
+    public void enlargeBall() {
+        myBall.enlargeBallSize();
+        PauseTransition wait = new PauseTransition(Duration.seconds(15));
+        wait.setOnFinished(event-> myBall.resetBallSize());
+        wait.play();
     }
 
-    public boolean isCollected() {
-        // Returns true if powerup is collected by the paddle
-        return myPowerup.intersects(myPaddle.getBoundsInLocal());
-    }
-
-    public boolean isOffScreen() {
-        // Returns true if powerup goes off the bottom of the screen
-        return myPowerup.getCenterY() + POWERUP_RADIUS >= Game.SIZE;
-    }
+    public Circle getPowerupCircle() { return myPowerup; }
+    public boolean isCollected() { return myPowerup.intersects(myPaddle.getBoundsInLocal()); }
+    public boolean isOffScreen() { return myPowerup.getCenterY() + POWERUP_RADIUS >= Game.SIZE;}
 
 }
