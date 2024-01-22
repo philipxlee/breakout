@@ -52,6 +52,9 @@ public class Level {
         if (values[i].equals("X")) {
             Block block = new UnbreakableBlock(x, y, blockWidth, blockHeight, INFINITE_HEALTH);
             root.getChildren().add(block);
+        } else if (values[i].equals("B")) {
+            Block block = new BadBlock(x, y, blockWidth, blockHeight, 1);
+            root.getChildren().add(block);
         } else {
             int health = Integer.parseInt(values[i]);
             Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);

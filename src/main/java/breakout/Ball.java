@@ -11,10 +11,10 @@ import javafx.stage.Stage;
 import java.util.Iterator;
 
 public class Ball {
+    public static final int BALL_RADIUS = 8;
 
     private static final int BALL_START_X = Game.SIZE / 2;
     private static final int BALL_START_Y = Game.SIZE / 2;
-    private static final int BALL_RADIUS = 7;
     private static final int BALL_VELOCITY_X = 0;
     private static final int BALL_VELOCITY_Y = 150;
 
@@ -28,6 +28,8 @@ public class Ball {
     public Ball() {
         myBall = new Circle(BALL_START_X, BALL_START_Y, BALL_RADIUS);
         myBall.setFill(Color.YELLOW);
+        myBall.setStroke(Color.BLACK);
+        myBall.setStrokeWidth(2.5);
     }
 
     public void setBallComponents(Game game, Main main) {
@@ -84,6 +86,7 @@ public class Ball {
         }
     }
 
+
     private void handleBallBlockCollision(Scene myScene, Group root, Stage stage) {
         Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
         while (iter.hasNext()) {
@@ -98,6 +101,10 @@ public class Ball {
     private boolean updateBlockHealthAndVelocity(Scene myScene, Group root, Stage stage, Block block) {
         if (myBall.intersects(block.getBoundsInParent())) {
             block.hit();
+            if (block instanceof BadBlock) {
+                game.handleBadBlockEffect(root);
+                Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
+            }
             ballVelocityY *= -1;
             checkForUnbreakableBlock(myScene, root, stage, block);
             return true;
@@ -105,16 +112,20 @@ public class Ball {
         return false;
     }
 
+
     private void checkForUnbreakableBlock(Scene myScene, Group root, Stage stage, Block block) {
         if (!(block instanceof UnbreakableBlock)) {
             game.addScore();
             main.updateScore(game.getScore());
             if (block.isDestroyed()) {
+                game.createPowerup(block, root);
                 Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
             }
             game.checkLevelCompletion(root, stage);
         }
     }
+
+
 
     public Circle getBall() { return myBall; }
     public double getCenterX() { return myBall.getCenterX(); }

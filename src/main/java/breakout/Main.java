@@ -9,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -97,7 +98,11 @@ public class Main extends Application {
         // Set timeline
         Timeline animation = new Timeline();
         animation.setCycleCount(Timeline.INDEFINITE);
-        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> { if (!game.isGameOver()) game.updateBall(DELAY, root, stage);}));
+        animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> {
+            if (!game.isGameOver()) {
+                game.updateBall(DELAY, root, stage);
+            }
+        }));
         animation.play();
     }
 
@@ -155,6 +160,7 @@ public class Main extends Application {
 
     public void nextLevel(Group root) {
         clearBlocks(root);
+        clearPowerups(root);
         ball.resetBall();
         Level level = levels.get(currentLevel - 1);
         level.showBlockLayout(root);
@@ -188,5 +194,6 @@ public class Main extends Application {
     public void updateScore(int newScore) { scoreText.setText("Score: " + newScore); }
     public void updateLives(int newRemainingLives) { livesText.setText("Lives: " + newRemainingLives); }
     private void clearBlocks(Group root) { root.getChildren().removeIf(node -> node instanceof Block); }
+    private void clearPowerups(Group root) { root.getChildren().removeIf(node -> node instanceof Circle && "Powerup".equals(node.getId()));}
 
 }

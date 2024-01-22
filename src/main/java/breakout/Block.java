@@ -21,10 +21,17 @@ public abstract class Block extends Rectangle {
 
     private void updateBlockColor() {
         switch (health) {
+            case 5 -> setFill(Color.DARKSLATEBLUE);
+            case 4 -> setFill(Color.DEEPPINK);
             case 3 -> setFill(Color.RED);
             case 2 -> setFill(Color.ORANGE);
             case 1 -> setFill(Color.GREEN);
         }
+    }
+
+    public void addHealth(int amount) {
+        this.health += amount;
+        updateBlockColor();
     }
 
     public boolean isDestroyed() {
@@ -48,9 +55,8 @@ class BadBlock extends Block {
 class UnbreakableBlock extends Block {
     public UnbreakableBlock(int x, int y, int width, int height, int health) {
         super(x, y, width, height, health);
-        health = Integer.MAX_VALUE;
         setStroke(Color.WHITE);
-        setStrokeWidth(1.0);
+        setStrokeWidth(0.8);
         setFill(Color.BLACK);
     }
 }

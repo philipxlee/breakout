@@ -1,16 +1,22 @@
 package breakout;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+
 
 
 public class Game {
 
     public static final int SIZE = 600;
 
-    private static final int BALL_RADIUS = 5;
+    private static final int BALL_RADIUS = Ball.BALL_RADIUS;
     private int lives = 3;
     private int score = 0;
     private boolean isGameOver = false;
@@ -26,10 +32,8 @@ public class Game {
     public int getLives() { return lives; }
     public boolean isGameOver() { return isGameOver; }
 
-    public void updateBall(double timestamp, Group root, Stage stage) {
-        myBall.handleBallMovement(timestamp, myPaddle, myScene, root, stage);
-        handleBallAtBottomEdge(stage);
-    }
+
+    private List<Powerup> activePowerups = new ArrayList<>();
 
     public void setGameComponents(Scene scene, Ball ball, Paddle paddle, Main main) {
         this.myScene = scene;
@@ -84,4 +88,54 @@ public class Game {
         myPaddle.resetPaddlePosition();
         resetBall();
     }
+
+    public void updateBall(double timestamp, Group root, Stage stage) {
+        myBall.handleBallMovement(timestamp, myPaddle, myScene, root, stage);
+        handleBallAtBottomEdge(stage);
+
+        // Update each active powerup
+        Iterator<Powerup> iterator = activePowerups.iterator();
+        while (iterator.hasNext()) {
+            Powerup powerup = iterator.next();
+            powerup.handlePowerupMovement(myScene, root, stage);
+            if (powerup.isCollected() || powerup.isOffScreen()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void createPowerup(Block block, Group root) {
+        if (block instanceof NormalBlock && Math.random() < 0.2) { // 20% chance for powerup
+            Powerup powerup = new Powerup((int) (block.getX() + block.getWidth() / 2), (int) block.getY(), myPaddle, myBall, this);
+            root.getChildren().add(powerup.getPowerupCircle());
+            activePowerups.add(powerup);
+        }
+    }
+
+    public void handleBadBlockEffect(Group root) {
+        // Create a list to store eligible blocks
+        List<Block> eligibleBlocks = new ArrayList<>();
+
+        // Add all blocks that are not BadBlock to the list
+        for (Node node : root.getChildren()) {
+            if (node instanceof Block && !(node instanceof BadBlock)) {
+                eligibleBlocks.add((Block) node);
+            }
+        }
+
+        // Shuffle the list to randomize the order and choose blocks
+        Collections.shuffle(eligibleBlocks);
+        int blocksToAffect = Math.min(eligibleBlocks.size(), 1 + (int)(Math.random() * 2)); // Randomly 1 or 2
+
+        // Increase the health of the first 1 or 2 blocks in the shuffled list
+        for (int i = 0; i < blocksToAffect; i++) {
+            Block block = eligibleBlocks.get(i);
+            block.addHealth(1);
+        }
+    }
+
+
+    public Game getGame() { return this; }
+    public Paddle getPaddle() { return myPaddle; }
+    public Ball getBall() { return myBall; }
 }
