@@ -1,5 +1,6 @@
 package breakout;
 
+import java.util.Iterator;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -8,22 +9,22 @@ import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.Iterator;
-
 public class Ball {
     public static final int BALL_RADIUS = 8;
-
-    private static final int BALL_START_X = Game.SIZE / 2;
-    private static final int BALL_START_Y = Game.SIZE / 2;
+    private static final int BALL_START_X = Main.SIZE / 2;
+    private static final int BALL_START_Y = Main.SIZE / 2;
     private static final int BALL_VELOCITY_X = 0;
     private static final int BALL_VELOCITY_Y = 150;
 
     private int ballVelocityX = BALL_VELOCITY_X;
     private int ballVelocityY = BALL_VELOCITY_Y;
+    private boolean slowed = false;
     private final Circle myBall;
     private Game game;
     private Main main;
-    private boolean slowed = false;
+
+    private double lastHitTime = 0;
+    private static final double HIT_COOLDOWN = 0.2; // 200 milliseconds
 
     public Ball() {
         myBall = new Circle(BALL_START_X, BALL_START_Y, BALL_RADIUS);
@@ -38,10 +39,10 @@ public class Ball {
     }
 
     public void resetBall() {
-        setCenterX(Game.SIZE / 2.0);
-        setCenterY(Game.SIZE / 2.0);
-        ballVelocityX = 0;
-        ballVelocityY = 150;
+        setCenterX(Main.SIZE / 2.0);
+        setCenterY(Main.SIZE / 2.0);
+        ballVelocityX = BALL_VELOCITY_X;
+        ballVelocityY = BALL_VELOCITY_Y;
     }
 
     public void handleBallSpeed() {
@@ -57,35 +58,49 @@ public class Ball {
     }
 
     public void handleBallMovement(double timestamp, Paddle myPaddle, Scene myScene, Group root, Stage stage) {
-        // Move ball
         myBall.setCenterX(myBall.getCenterX() + ballVelocityX * timestamp);
         myBall.setCenterY(myBall.getCenterY() + ballVelocityY * timestamp);
-
-        // Handle collisions
         handleBallPanelCollision(myPaddle);
         handleBallWindowCollision();
         handleBallBlockCollision(myScene, root, stage);
     }
 
+    public void enlargeBallSize() { myBall.setRadius(BALL_RADIUS * 2); }
+    public void resetBallSize() { myBall.setRadius(BALL_RADIUS); }
+    public double getCenterY() { return myBall.getCenterY(); }
+    public void setCenterX(double x) { myBall.setCenterX(x); }
+    public void setCenterY(double y) { myBall.setCenterY(y); }
+    public Circle getBall() { return myBall; }
+
     private void handleBallWindowCollision() {
-        if (myBall.getCenterX() - BALL_RADIUS <= 0 || myBall.getCenterX() + BALL_RADIUS >= Game.SIZE) {
+        if (myBall.getCenterX() - BALL_RADIUS <= 0 || myBall.getCenterX() + BALL_RADIUS >= Main.SIZE) {
             ballVelocityX *= -1;
         }
-        if (myBall.getCenterY() - BALL_RADIUS <= 0 || myBall.getCenterY() + BALL_RADIUS >= Game.SIZE) {
+        if (myBall.getCenterY() - BALL_RADIUS <= 0 || myBall.getCenterY() + BALL_RADIUS >= Main.SIZE) {
             ballVelocityY *= -1;
         }
     }
 
     private void handleBallPanelCollision(Paddle myPaddle) {
         if (myBall.intersects(myPaddle.getBoundsInLocal())) {
-            ballVelocityY *= -1;
+            ballVelocityY *= -1; // Always invert Y velocity to bounce up
+
             double paddleCenter = myPaddle.getX() + myPaddle.getWidth() / 2;
             double ballCenter = myBall.getCenterX();
             double difference = ballCenter - paddleCenter;
-            ballVelocityX += (int) (difference); // Adjust X velocity based on hit location
+            double thirdPaddleWidth = myPaddle.getWidth() / 3;
+            if (myBall.getCenterX() <= myPaddle.getX() + thirdPaddleWidth) {
+                ballVelocityX = -100;
+            }
+            else if (myBall.getCenterX() > myPaddle.getX() + thirdPaddleWidth && myBall.getCenterX() < myPaddle.getX() + (2 * thirdPaddleWidth)) {
+                ballVelocityX = (int) difference;
+            }
+            else {
+                ballVelocityX = 100;
+            }
+
         }
     }
-
 
     private void handleBallBlockCollision(Scene myScene, Group root, Stage stage) {
         Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
@@ -101,15 +116,19 @@ public class Ball {
     private boolean updateBlockHealthAndVelocity(Scene myScene, Group root, Stage stage, Block block) {
         if (myBall.intersects(block.getBoundsInParent())) {
             block.hit();
-            if (block instanceof BadBlock) {
-                game.handleBadBlockEffect(root);
-                Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
-            }
             ballVelocityY *= -1;
+            checkForBadBlock(myScene, root, block);
             checkForUnbreakableBlock(myScene, root, stage, block);
             return true;
         }
         return false;
+    }
+
+    private void checkForBadBlock(Scene myScene, Group root, Block block) {
+        if (block instanceof BadBlock) {
+            game.handleBadBlockEffect(root);
+            Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
+        }
     }
 
 
@@ -124,19 +143,4 @@ public class Ball {
             game.checkLevelCompletion(root, stage);
         }
     }
-
-
-
-    public void enlargeBallSize() {
-        myBall.setRadius(BALL_RADIUS * 2);
-    }
-
-    public void resetBallSize() {
-        myBall.setRadius(BALL_RADIUS);
-    }
-    public Circle getBall() { return myBall; }
-    public double getCenterX() { return myBall.getCenterX(); }
-    public double getCenterY() { return myBall.getCenterY(); }
-    public void setCenterX(double x) { myBall.setCenterX(x); }
-    public void setCenterY(double y) { myBall.setCenterY(y); }
 }

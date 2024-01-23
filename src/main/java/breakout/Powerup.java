@@ -1,7 +1,6 @@
 package breakout;
 
 import java.util.Random;
-
 import javafx.animation.PauseTransition;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -21,8 +20,8 @@ public class Powerup {
     Game myGame;
     Random rand = new Random();
 
-    int powerupVelocityX = POWERUP_VELOCITY_X + (rand.nextInt(5) - 3);
-    int powerupVelocityY = POWERUP_VELOCITY_Y;
+    private int powerupVelocityX = POWERUP_VELOCITY_X + (rand.nextInt(5) - 3);
+    private int powerupVelocityY = POWERUP_VELOCITY_Y;
 
     public Powerup(int x, int y, Paddle paddle, Ball ball, Game game) {
         myPowerup = new Circle(x, y, POWERUP_RADIUS);
@@ -38,7 +37,7 @@ public class Powerup {
     public void handlePowerupMovement(Scene myScene, Group root, Stage stage) {
         myPowerup.setCenterX(myPowerup.getCenterX() + powerupVelocityX);
         myPowerup.setCenterY(myPowerup.getCenterY() + powerupVelocityY);
-        handlePowerupPaddleCollision(myPaddle);
+        handlePowerupCollection(myPaddle);
         handlePowerupWindowCollision();
         if (isCollected() || isOffScreen()) {
             root.getChildren().remove(myPowerup);
@@ -46,7 +45,7 @@ public class Powerup {
     }
 
 
-    public void handlePowerupPaddleCollision(Paddle myPaddle) {
+    public void handlePowerupCollection(Paddle myPaddle) {
         if (myPowerup.intersects(myPaddle.getBoundsInLocal())) {
             switch(rand.nextInt(1,4)) {
                 case 1 -> extendPaddle();
@@ -57,37 +56,36 @@ public class Powerup {
     }
 
     public void handlePowerupWindowCollision() {
-        if (myPowerup.getCenterX() - POWERUP_RADIUS <= 0 || myPowerup.getCenterX() + POWERUP_RADIUS >= Game.SIZE) {
+        if (myPowerup.getCenterX() - POWERUP_RADIUS <= 0 || myPowerup.getCenterX() + POWERUP_RADIUS >= Main.SIZE) {
             powerupVelocityX *= -1;
         }
-        if (myPowerup.getCenterY() - POWERUP_RADIUS <= 0 || myPowerup.getCenterY() + POWERUP_RADIUS >= Game.SIZE) {
+        if (myPowerup.getCenterY() - POWERUP_RADIUS <= 0 || myPowerup.getCenterY() + POWERUP_RADIUS >= Main.SIZE) {
             powerupVelocityY *= -1;
         }
     }
 
     public void extendPaddle() {
         myPaddle.extendPaddleWidth();
-        PauseTransition wait = new PauseTransition(Duration.seconds(15));
-        wait.setOnFinished(event -> myPaddle.resetPaddleWidth());
-        wait.play();
+        applyEffectWithDelay(() -> myPaddle.resetPaddleWidth());
     }
 
     public void speedPaddle() {
         myPaddle.speedUpPaddle();
-        PauseTransition wait = new PauseTransition(Duration.seconds(15));
-        wait.setOnFinished(event-> myPaddle.resetPaddleSpeed());
-        wait.play();
+        applyEffectWithDelay(() -> myPaddle.resetPaddleSpeed());
     }
 
     public void enlargeBall() {
         myBall.enlargeBallSize();
-        PauseTransition wait = new PauseTransition(Duration.seconds(15));
-        wait.setOnFinished(event-> myBall.resetBallSize());
-        wait.play();
+        applyEffectWithDelay(() -> myBall.resetBallSize());
     }
 
     public Circle getPowerupCircle() { return myPowerup; }
     public boolean isCollected() { return myPowerup.intersects(myPaddle.getBoundsInLocal()); }
-    public boolean isOffScreen() { return myPowerup.getCenterY() + POWERUP_RADIUS >= Game.SIZE;}
+    public boolean isOffScreen() { return myPowerup.getCenterY() + POWERUP_RADIUS >= Main.SIZE;}
 
+    private void applyEffectWithDelay(Runnable action) {
+        PauseTransition wait = new PauseTransition(Duration.seconds(15));
+        wait.setOnFinished(event -> action.run());
+        wait.play();
+    }
 }

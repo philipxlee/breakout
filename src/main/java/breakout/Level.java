@@ -9,37 +9,30 @@ import java.util.HashMap;
 
 public class Level {
 
-    private final int INFINITE_HEALTH = 1_000_000;
-    protected final int X_OFFSET = 30;
-    protected final int Y_OFFSET = 50;
-    protected int levelNumber;
-    protected int blockWidth = Game.SIZE / 10;
-    protected int blockHeight = 30;
-    protected String pathName;
-    protected HashMap<Integer, Color> colorMap = new HashMap<>() {{
+    private final int blockWidth = Main.SIZE / 10;
+    private final int blockHeight = 30;
+    private final String pathName;
+    private final HashMap<Integer, Color> colorMap = new HashMap<>() {{
         put(3, Color.RED);
         put(2, Color.ORANGE);
         put(1, Color.GREEN);
     }};;
 
-    public Level(int levelNumber, String pathName) {
-        this.levelNumber = levelNumber;
-        this.pathName = pathName;
-    }
+    public Level(String pathName) { this.pathName = pathName; }
+    public void showBlockLayout(Group root) { setBlockLayout(root); }
 
-    public void showBlockLayout(Group root) { setBlockLayout(root, this.pathName); }
-
-    public void setBlockLayout(Group root, String pathname) {
+    private void setBlockLayout(Group root) {
         try (BufferedReader reader = new BufferedReader(new FileReader(pathName))) {
             String line;
             int row = 0;
-
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split("\\s+"); // Split on one or more spaces
                 for (int i = 0; i < values.length; i++) {
                     if (values[i].isEmpty() || values[i].equals("0")) continue;
-                    int x = (i * blockWidth) + X_OFFSET;
-                    int y = (row * blockHeight) + Y_OFFSET;
+                    int x_OFFSET = 30;
+                    int x = (i * blockWidth) + x_OFFSET;
+                    int y_OFFSET = 50;
+                    int y = (row * blockHeight) + y_OFFSET;
                     generateBlocks(root, values, i, x, y);
                 }
                 row++;
@@ -50,18 +43,18 @@ public class Level {
     }
 
     private void generateBlocks(Group root, String[] values, int i, int x, int y) {
+        Block block;
         if (values[i].equals("X")) {
-            Block block = new UnbreakableBlock(x, y, blockWidth, blockHeight, INFINITE_HEALTH);
-            root.getChildren().add(block);
+            int infiniteHealth = 1_000_000;
+            block = new UnbreakableBlock(x, y, blockWidth, blockHeight, infiniteHealth);
         } else if (values[i].equals("B")) {
-            Block block = new BadBlock(x, y, blockWidth, blockHeight, 1);
-            root.getChildren().add(block);
+            int oneHealth = 1;
+            block = new BadBlock(x, y, blockWidth, blockHeight, oneHealth);
         } else {
-            int health = Integer.parseInt(values[i]);
-            Block block = new NormalBlock(x, y, blockWidth, blockHeight, health);
-            Color color = colorMap.get(health);
-            block.setFill(color);
-            root.getChildren().add(block);
+            int determinedHealth = Integer.parseInt(values[i]);
+            block = new NormalBlock(x, y, blockWidth, blockHeight, determinedHealth);
+            block.setFill(colorMap.get(determinedHealth));
         }
+        root.getChildren().add(block);
     }
 }

@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-
-
 public class Game {
-
-    public static final int SIZE = 600;
 
     private static final int BALL_RADIUS = Ball.BALL_RADIUS;
     private int lives = 3;
@@ -25,6 +21,7 @@ public class Game {
     private Ball myBall;
     private Paddle myPaddle;
     private Main main;
+    private List<Powerup> activePowerups = new ArrayList<>();
 
     public void addScore(int add) { score += add; }
     public void toggleBallSpeed() { myBall.handleBallSpeed(); }
@@ -33,8 +30,6 @@ public class Game {
     public int getLives() { return lives; }
     public boolean isGameOver() { return isGameOver; }
 
-
-    private List<Powerup> activePowerups = new ArrayList<>();
 
     public void setGameComponents(Scene scene, Ball ball, Paddle paddle, Main main) {
         this.myScene = scene;
@@ -50,9 +45,17 @@ public class Game {
             case UP -> myPaddle.handlePaddleUpMovement();
             case DOWN -> myPaddle.handlePaddleDownMovement();
             case R -> myPaddle.resetPaddlePosition();
-            case SHIFT -> toggleBallSpeed();
             case L -> main.updateLives(++lives);
             case S -> skipLevel(root, stage);
+            case DIGIT1 -> myPaddle.extendPaddleWidth();
+            case DIGIT2 -> myPaddle.speedUpPaddle();
+            case DIGIT3 -> myBall.enlargeBallSize();
+            case DIGIT4 -> toggleBallSpeed();
+            case DIGIT5 -> {
+                myPaddle.resetPaddleWidth();
+                myPaddle.resetPaddleSpeed();
+                myBall.resetBallSize();
+            }
         }
     }
 
@@ -67,28 +70,6 @@ public class Game {
             myBall.resetBall();
             myPaddle.resetPaddlePosition();
         }
-    }
-
-    private void resetBall() { myBall.resetBall(); }
-
-    private void handleBallAtBottomEdge(Stage stage, Group root) {
-        if (myBall.getCenterY() + BALL_RADIUS >= SIZE) {
-            resetBall();
-            main.clearPowerups(root);
-            myPaddle.resetPaddlePosition();
-            lives--;
-            main.updateLives(lives);
-        }
-        if (lives == 0 && !isGameOver) {
-            setGameOver(true);
-            main.showGameOverScreen(stage, "Sorry :(\nYou lost...\nScore: " + getScore() + "\nLives Remaining: " + getLives() + "\nPowerups used: " + getPowerupUsed());
-        }
-    }
-
-    private void skipLevel(Group root, Stage stage) {
-        main.showNextLevelIntroduction(root, stage);
-        myPaddle.resetPaddlePosition();
-        resetBall();
     }
 
     public void updateBall(double timestamp, Group root, Stage stage) {
@@ -114,8 +95,6 @@ public class Game {
         }
     }
 
-    public int getPowerupUsed() { return powerupUsed; }
-
     public void createPowerup(Block block, Group root) {
         if (block instanceof NormalBlock && Math.random() < 0.2) { // 20% chance for powerup
             Powerup powerup = new Powerup((int) (block.getX() + block.getWidth() / 2), (int) block.getY(), myPaddle, myBall, this);
@@ -124,15 +103,11 @@ public class Game {
         }
     }
 
-    private void addPowerupUsed() { powerupUsed++; }
-
     public void handleBadBlockEffect(Group root) {
-        // Create a list to store eligible blocks
+        // Create a list to store eligible blocks and add eligible to list
         List<Block> eligibleBlocks = new ArrayList<>();
-
-        // Add all blocks that are not BadBlock to the list
         for (Node node : root.getChildren()) {
-            if (node instanceof Block && !(node instanceof BadBlock)) {
+            if (node instanceof Block && !(node instanceof BadBlock) && !(node instanceof UnbreakableBlock)) {
                 eligibleBlocks.add((Block) node);
             }
         }
@@ -148,7 +123,28 @@ public class Game {
         }
     }
 
-    public Game getGame() { return this; }
-    public Paddle getPaddle() { return myPaddle; }
-    public Ball getBall() { return myBall; }
+    public int getPowerupUsed() { return powerupUsed; }
+
+    private void handleBallAtBottomEdge(Stage stage, Group root) {
+        if (myBall.getCenterY() + BALL_RADIUS >= Main.SIZE) {
+            resetBall();
+            main.clearPowerups(root);
+            lives--;
+            main.updateLives(lives);
+            myPaddle.resetPaddlePosition();
+        }
+        if (lives == 0 && !isGameOver) {
+            setGameOver(true);
+            main.showGameOverScreen(stage, "Sorry :(\nYou lost...\nScore: " + getScore() + "\nLives Remaining: " + getLives() + "\nPowerups used: " + getPowerupUsed());
+        }
+    }
+
+    private void skipLevel(Group root, Stage stage) {
+        main.showNextLevelIntroduction(root, stage);
+        myPaddle.resetPaddlePosition();
+        resetBall();
+    }
+
+    private void resetBall() { myBall.resetBall(); }
+    private void addPowerupUsed() { powerupUsed++; }
 }

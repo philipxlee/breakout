@@ -5,7 +5,8 @@ import javafx.scene.paint.Color;
 
 public abstract class Block extends Rectangle {
 
-    protected int health;
+    private int health;
+
     public Block(int x, int y, int width, int height, int health) {
         super(width, height);
         this.setX(x);
@@ -19,24 +20,27 @@ public abstract class Block extends Rectangle {
         updateBlockColor();
     }
 
-    private void updateBlockColor() {
-        switch (health) {
-            case 5 -> setFill(Color.DARKSLATEBLUE);
-            case 4 -> setFill(Color.DEEPPINK);
-            case 3 -> setFill(Color.RED);
-            case 2 -> setFill(Color.ORANGE);
-            case 1 -> setFill(Color.GREEN);
-        }
-    }
 
     public void addHealth(int amount) {
         this.health += amount;
         updateBlockColor();
     }
 
+
     public boolean isDestroyed() {
         return health <= 0;
     }
+
+    private void updateBlockColor() {
+        switch (health) {
+            case 5 -> setFill(Color.RED);
+            case 4 -> setFill(Color.DEEPPINK);
+            case 3 -> setFill(Color.DARKSLATEBLUE);
+            case 2 -> setFill(Color.ORANGE);
+            case 1 -> setFill(Color.GREEN);
+        }
+    }
+
 }
 
 class NormalBlock extends Block {
