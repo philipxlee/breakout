@@ -2,7 +2,6 @@ package breakout;
 
 import java.util.Iterator;
 import javafx.application.Platform;
-import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;

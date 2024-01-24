@@ -3,10 +3,8 @@ package breakout;
 import java.util.Random;
 import javafx.animation.PauseTransition;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class Powerup {
@@ -34,7 +32,7 @@ public class Powerup {
         this.myGame = game;
     }
 
-    public void handlePowerupMovement(Scene myScene, Group root, Stage stage) {
+    public void handlePowerupMovement(Group root) {
         myPowerup.setCenterX(myPowerup.getCenterX() + powerupVelocityX);
         myPowerup.setCenterY(myPowerup.getCenterY() + powerupVelocityY);
         handlePowerupCollection(myPaddle);

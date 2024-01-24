@@ -79,7 +79,7 @@ public class Game {
         Iterator<Powerup> iterator = activePowerups.iterator();
         while (iterator.hasNext()) {
             Powerup powerup = iterator.next();
-            powerup.handlePowerupMovement(myScene, root, stage);
+            powerup.handlePowerupMovement(root);
             if (powerup.isCollected()) {
                 addPowerupUsed();
                 addScore(5);
