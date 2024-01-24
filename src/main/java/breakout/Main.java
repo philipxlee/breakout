@@ -47,7 +47,7 @@ public class Main extends Application {
         // Display starting splash screen
         Scene myStartScreen = setGameIntroductionScene();
         stage.setScene(myStartScreen);
-        stage.setTitle("Breakout is Breaking Me");
+        stage.setTitle("Breakout by Philip Lee");
         stage.show();
 
         // Create game instances
@@ -65,7 +65,7 @@ public class Main extends Application {
         levels.add(new Level("src/main/resources/Level3Layout"));
     }
 
-    public void showNextLevelIntroduction(Group root, Stage stage) {
+    public void showNextLevelIntroduction(Stage stage) {
         if (currentLevel < levels.size()) {
             currentLevel++;
             setLevelIntroductionScreen(currentLevel, stage);
@@ -102,7 +102,7 @@ public class Main extends Application {
         Group root = (Group) myScene.getRoot();
 
         // Start level splash screen and event handler
-        showNextLevelIntroduction(root, stage);
+        showNextLevelIntroduction(stage);
         myScene.setOnKeyPressed(e -> game.handleKeyInput(e.getCode(), root, stage));
 
         // Set timeline
@@ -141,10 +141,23 @@ public class Main extends Application {
 
     private Scene setGameIntroductionScene() {
         Group root = new Group();
-        Text gameRules = createText("Welcome!", Color.WHITE, 20);
-        gameRules.setX(SIZE / 6.0);
-        gameRules.setY(SIZE / 4.0);
-        root.getChildren().add(gameRules);
+
+        // Create text objects for game rules
+        Text welcomeText = createText("Welcome to Breakout!", Color.WHITE, 20);
+        Text rule1 = createText("Rule 1: Hit all the blocks (besides black ones)", Color.WHITE, 15);
+        Text rule2 = createText("Rule 2: Don't let the ball fall", Color.WHITE, 15);
+        Text rule3 = createText("Rule 3: Have fun! :)", Color.WHITE, 15);
+        Text keys = createText("Cheat keys:\n - 1: Extend Paddle\n - 2: Increase paddle horizontal speed\n" +
+                " - 3: Increase size of game ball\n - 4: Toggle button to lower speed\n - 5: Resets 1, 2, 3\n" +
+                " - S: Skips level\n - R: Resets paddle to original position\n - L: Add a life\n", Color.WHITE, 15);
+
+        // Create a VBox and add text objects
+        VBox rulesBox = new VBox(10); // 10 is the spacing between elements
+        rulesBox.getChildren().addAll(welcomeText, rule1, rule2, rule3, keys);
+        rulesBox.setAlignment(Pos.TOP_LEFT);
+        rulesBox.setLayoutX(SIZE / 5.0);
+        rulesBox.setLayoutY(SIZE / 5.0);
+        root.getChildren().add(rulesBox);
         return new Scene(root, SIZE, SIZE, DUKE_BLUE);
     }
 
@@ -160,17 +173,15 @@ public class Main extends Application {
 
         levelSplashScene.setOnMouseClicked(e -> {
             nextLevel((Group) myScene.getRoot());
-            stage.setScene(myScene); // Set back the game scene
+            stage.setScene(myScene);
         });
     }
 
     private VBox createScoreboard() {
-        // Initialize score and lives text
         scoreText = createText("Score: " + game.getScore(), Color.WHITE, 12);
         livesText = createText("Lives: " + game.getLives(), Color.WHITE, 12);
         powerUpsText = createText("Power-ups: " + game.getPowerupUsed(), Color.WHITE, 12);
 
-        // Create a VBox for score and lives
         VBox overlay = new VBox(5);
         overlay.setAlignment(Pos.TOP_LEFT);
         overlay.setPadding(new Insets(10));

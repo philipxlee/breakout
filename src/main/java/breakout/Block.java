@@ -33,9 +33,10 @@ public abstract class Block extends Rectangle {
 
     private void updateBlockColor() {
         switch (health) {
-            case 5 -> setFill(Color.RED);
+            case 6 -> setFill(Color.INDIANRED);
+            case 5 -> setFill(Color.DARKSLATEBLUE);
             case 4 -> setFill(Color.DEEPPINK);
-            case 3 -> setFill(Color.DARKSLATEBLUE);
+            case 3 -> setFill(Color.RED);
             case 2 -> setFill(Color.ORANGE);
             case 1 -> setFill(Color.GREEN);
         }

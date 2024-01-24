@@ -46,7 +46,7 @@ public class Game {
             case DOWN -> myPaddle.handlePaddleDownMovement();
             case R -> myPaddle.resetPaddlePosition();
             case L -> main.updateLives(++lives);
-            case S -> skipLevel(root, stage);
+            case S -> skipLevel(stage);
             case DIGIT1 -> myPaddle.extendPaddleWidth();
             case DIGIT2 -> myPaddle.speedUpPaddle();
             case DIGIT3 -> myBall.enlargeBallSize();
@@ -66,7 +66,7 @@ public class Game {
                 .map(node -> (Block) node)
                 .noneMatch(block -> !block.isDestroyed() && !(block instanceof UnbreakableBlock));
         if (levelCleared) {
-            main.showNextLevelIntroduction(root, stage);
+            main.showNextLevelIntroduction(stage);
             myBall.resetBall();
             myPaddle.resetPaddlePosition();
         }
@@ -139,8 +139,8 @@ public class Game {
         }
     }
 
-    private void skipLevel(Group root, Stage stage) {
-        main.showNextLevelIntroduction(root, stage);
+    private void skipLevel(Stage stage) {
+        main.showNextLevelIntroduction(stage);
         myPaddle.resetPaddlePosition();
         resetBall();
     }

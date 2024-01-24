@@ -8,7 +8,7 @@
 
 * Finish Date: 23 January, 2024
 
-* Hours Spent: 20 hours
+* Hours Spent: 30 hours
 
 
 
@@ -73,8 +73,8 @@
    * Block:
       * NormalBlock - a regular block with varying colors, with each color corresponding to a certain health. When a NormalBlock is broken, there is a chance that a powerup will spawn, and its powers will be randomly selected.
       * BadBlock - a purple block that will randomly increase the health of two NormalBlocks in the screen by 1, thus changing their color, when broken.
-      * UnbreakableBlock - a black, indestructible block with a gravitational pull. When the game ball hits the left and right side of the UnbreakableBlock, the ball
-        will go through block from one side to the other. Hitting the block on the left and right corners would also result in the ball being "glued" to the UnbreakableBlock.
+      * UnbreakableBlock - a black, indestructible block with a twist. When the game ball hits any corner of the UnbreakableBlock, the ball
+        will "stick" to that edge and traverse it. When it reaches the other corner, the direction is reversed.
 
    * Power Ups:
       * Extend Paddle: The paddle will extend in width for 15 seconds.
@@ -89,3 +89,8 @@
 
 
 ### Assignment Impressions
+
+It was a challenging assignment in the sense that there had to be a learning curve to learn JavaFX. I initially struggled with grouping too many things together. For instance, 
+at the beginning, I didn't have separate classes for Ball and Paddle, but instead had all of these methods that altered their states within one class, which led to messy code.
+Refactoring and following best practices was also challenging, as I feel that a lot of coders have an idiosyncratic style of code. The assignment, however, was really fun and challeging,
+albeit implementation heavy.

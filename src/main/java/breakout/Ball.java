@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.geometry.Bounds;
+
 
 public class Ball {
     public static final int BALL_RADIUS = 8;
@@ -22,9 +24,6 @@ public class Ball {
     private final Circle myBall;
     private Game game;
     private Main main;
-
-    private double lastHitTime = 0;
-    private static final double HIT_COOLDOWN = 0.2; // 200 milliseconds
 
     public Ball() {
         myBall = new Circle(BALL_START_X, BALL_START_Y, BALL_RADIUS);
@@ -83,20 +82,19 @@ public class Ball {
 
     private void handleBallPanelCollision(Paddle myPaddle) {
         if (myBall.intersects(myPaddle.getBoundsInLocal())) {
-            ballVelocityY *= -1; // Always invert Y velocity to bounce up
-
+            ballVelocityY *= -1;
             double paddleCenter = myPaddle.getX() + myPaddle.getWidth() / 2;
             double ballCenter = myBall.getCenterX();
             double difference = ballCenter - paddleCenter;
             double thirdPaddleWidth = myPaddle.getWidth() / 3;
             if (myBall.getCenterX() <= myPaddle.getX() + thirdPaddleWidth) {
-                ballVelocityX = -100;
+                ballVelocityX = -100 - (int) difference;
             }
             else if (myBall.getCenterX() > myPaddle.getX() + thirdPaddleWidth && myBall.getCenterX() < myPaddle.getX() + (2 * thirdPaddleWidth)) {
                 ballVelocityX = (int) difference;
             }
             else {
-                ballVelocityX = 100;
+                ballVelocityX = 100 + (int) difference;
             }
 
         }
@@ -116,7 +114,12 @@ public class Ball {
     private boolean updateBlockHealthAndVelocity(Scene myScene, Group root, Stage stage, Block block) {
         if (myBall.intersects(block.getBoundsInParent())) {
             block.hit();
-            ballVelocityY *= -1;
+            String collisionDirection = calculateCollisionDirection(block);
+            if (collisionDirection.equals("LEFT") || collisionDirection.equals("RIGHT")) {
+                ballVelocityX *= -1;
+            } else {
+                ballVelocityY *= -1;
+            }
             checkForBadBlock(myScene, root, block);
             checkForUnbreakableBlock(myScene, root, stage, block);
             return true;
@@ -141,6 +144,19 @@ public class Ball {
                 Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
             }
             game.checkLevelCompletion(root, stage);
+        }
+    }
+
+    private String calculateCollisionDirection(Block block) {
+        double distanceToLeft = Math.abs(myBall.getCenterX() - block.getX());
+        double distanceToRight = Math.abs(myBall.getCenterX() - (block.getX() + block.getWidth()));
+        double distanceToTop = Math.abs(myBall.getCenterY() - block.getY());
+        double distanceToBottom = Math.abs(myBall.getCenterY() - (block.getY() + block.getHeight()));
+        boolean horizontalCollision = Math.min(distanceToLeft, distanceToRight) < Math.min(distanceToTop, distanceToBottom);
+        if (horizontalCollision) {
+            return (distanceToLeft < distanceToRight) ? "LEFT" : "RIGHT";
+        } else {
+            return (distanceToTop < distanceToBottom) ? "TOP" : "BOTTOM";
         }
     }
 }
