@@ -91,21 +91,15 @@ public class Main extends Application {
     public void clearPowerups(Group root) { root.getChildren().removeIf(node -> node instanceof Circle && "Powerup".equals(node.getId()));}
 
     private void startGame(Stage stage) {
-
-        // Create scene and make game control correct scenes
         myScene = setGameScene();
         game.setGameComponents(myScene, ball, paddle, this);
         ball.setBallComponents(game, this);
 
-        // Set the scene
         stage.setScene(myScene);
         Group root = (Group) myScene.getRoot();
-
-        // Start level splash screen and event handler
         showNextLevelIntroduction(stage);
         myScene.setOnKeyPressed(e -> game.handleKeyInput(e.getCode(), root, stage));
 
-        // Set timeline
         Timeline animation = new Timeline();
         animation.setCycleCount(Timeline.INDEFINITE);
         animation.getKeyFrames().add(new KeyFrame(Duration.seconds(DELAY), e -> {
@@ -141,8 +135,6 @@ public class Main extends Application {
 
     private Scene setGameIntroductionScene() {
         Group root = new Group();
-
-        // Create text objects for game rules
         Text welcomeText = createText("Welcome to Breakout!", Color.WHITE, 20);
         Text rule1 = createText("Rule 1: Hit all the blocks (besides black ones)", Color.WHITE, 15);
         Text rule2 = createText("Rule 2: Don't let the ball fall", Color.WHITE, 15);
@@ -151,8 +143,7 @@ public class Main extends Application {
                 " - 3: Increase size of game ball\n - 4: Toggle button to lower speed\n - 5: Resets 1, 2, 3\n" +
                 " - S: Skips level\n - R: Resets paddle to original position\n - L: Add a life\n", Color.WHITE, 15);
 
-        // Create a VBox and add text objects
-        VBox rulesBox = new VBox(10); // 10 is the spacing between elements
+        VBox rulesBox = new VBox(10);
         rulesBox.getChildren().addAll(welcomeText, rule1, rule2, rule3, keys);
         rulesBox.setAlignment(Pos.TOP_LEFT);
         rulesBox.setLayoutX(SIZE / 5.0);

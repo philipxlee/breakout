@@ -12,8 +12,7 @@ import java.util.Iterator;
 
 public class Game {
 
-    private static final int BALL_RADIUS = Ball.BALL_RADIUS;
-    private int lives = 3;
+    private int lives = 5;
     private int score = 0;
     private int powerupUsed = 0;
     private boolean isGameOver = false;
@@ -82,7 +81,6 @@ public class Game {
             Powerup powerup = iterator.next();
             powerup.handlePowerupMovement(myScene, root, stage);
             if (powerup.isCollected()) {
-                System.out.println("Collected");
                 addPowerupUsed();
                 addScore(5);
                 main.updatePowerupsUsed(getPowerupUsed());
@@ -126,7 +124,7 @@ public class Game {
     public int getPowerupUsed() { return powerupUsed; }
 
     private void handleBallAtBottomEdge(Stage stage, Group root) {
-        if (myBall.getCenterY() + BALL_RADIUS >= Main.SIZE) {
+        if (myBall.getCenterY() + Ball.BALL_RADIUS >= Main.SIZE) {
             resetBall();
             main.clearPowerups(root);
             lives--;

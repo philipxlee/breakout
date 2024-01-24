@@ -2,13 +2,13 @@ package breakout;
 
 import java.util.Iterator;
 import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.geometry.Bounds;
 
 
 public class Ball {
@@ -17,11 +17,13 @@ public class Ball {
     private static final int BALL_START_Y = Main.SIZE / 2;
     private static final int BALL_VELOCITY_X = 0;
     private static final int BALL_VELOCITY_Y = 150;
+    private static final int MAX_VELOCITY_CHANGE = 120;
+    private static final int VELOCITY_CHANGE_STEP = 40;
 
     private int ballVelocityX = BALL_VELOCITY_X;
     private int ballVelocityY = BALL_VELOCITY_Y;
     private boolean slowed = false;
-    private final Circle myBall;
+    private Circle myBall;
     private Game game;
     private Main main;
 
@@ -86,40 +88,45 @@ public class Ball {
             double paddleCenter = myPaddle.getX() + myPaddle.getWidth() / 2;
             double ballCenter = myBall.getCenterX();
             double difference = ballCenter - paddleCenter;
-            double thirdPaddleWidth = myPaddle.getWidth() / 3;
-            if (myBall.getCenterX() <= myPaddle.getX() + thirdPaddleWidth) {
-                ballVelocityX = -100 - (int) difference;
-            }
-            else if (myBall.getCenterX() > myPaddle.getX() + thirdPaddleWidth && myBall.getCenterX() < myPaddle.getX() + (2 * thirdPaddleWidth)) {
-                ballVelocityX = (int) difference;
-            }
-            else {
-                ballVelocityX = 100 + (int) difference;
-            }
+            double sixthPaddleWidth = myPaddle.getWidth() / 6;
 
+            for (int i = 1; i <= 6; i++) {
+                if (myBall.getCenterX() <= myPaddle.getX() + (i * sixthPaddleWidth)) {
+                    int velocityChange = calculateVelocityChange(i, difference);
+                    ballVelocityX = velocityChange;
+                    break;
+                }
+            }
         }
+    }
+
+    private int calculateVelocityChange(int segment, double difference) {
+        // Adjust the velocity change based on the segment hit
+        int velocityChange = (segment - 3) * VELOCITY_CHANGE_STEP;
+        if (segment > 3) {
+            velocityChange += (int) difference;
+        } else {
+            velocityChange -= (int) difference;
+        }
+        return velocityChange;
     }
 
     private void handleBallBlockCollision(Scene myScene, Group root, Stage stage) {
         Iterator<Node> iter = myScene.getRoot().getChildrenUnmodifiable().iterator();
         while (iter.hasNext()) {
             Node node = iter.next();
-            if (node instanceof Block) {
-                Block block = (Block) node;
-                if (updateBlockHealthAndVelocity(myScene, root, stage, block)) break;
+            if (node instanceof Block && updateBlockHealthAndVelocity(myScene, root, stage, (Block) node)) {
+                break;
             }
         }
     }
 
+
     private boolean updateBlockHealthAndVelocity(Scene myScene, Group root, Stage stage, Block block) {
         if (myBall.intersects(block.getBoundsInParent())) {
             block.hit();
-            String collisionDirection = calculateCollisionDirection(block);
-            if (collisionDirection.equals("LEFT") || collisionDirection.equals("RIGHT")) {
-                ballVelocityX *= -1;
-            } else {
-                ballVelocityY *= -1;
-            }
+            ballVelocityX *= -1;
+            ballVelocityY *= -1;
             checkForBadBlock(myScene, root, block);
             checkForUnbreakableBlock(myScene, root, stage, block);
             return true;
@@ -144,19 +151,6 @@ public class Ball {
                 Platform.runLater(() -> ((Group) myScene.getRoot()).getChildren().remove(block));
             }
             game.checkLevelCompletion(root, stage);
-        }
-    }
-
-    private String calculateCollisionDirection(Block block) {
-        double distanceToLeft = Math.abs(myBall.getCenterX() - block.getX());
-        double distanceToRight = Math.abs(myBall.getCenterX() - (block.getX() + block.getWidth()));
-        double distanceToTop = Math.abs(myBall.getCenterY() - block.getY());
-        double distanceToBottom = Math.abs(myBall.getCenterY() - (block.getY() + block.getHeight()));
-        boolean horizontalCollision = Math.min(distanceToLeft, distanceToRight) < Math.min(distanceToTop, distanceToBottom);
-        if (horizontalCollision) {
-            return (distanceToLeft < distanceToRight) ? "LEFT" : "RIGHT";
-        } else {
-            return (distanceToTop < distanceToBottom) ? "TOP" : "BOTTOM";
         }
     }
 }

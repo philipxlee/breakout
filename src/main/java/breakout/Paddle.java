@@ -6,7 +6,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Paddle {
 
-    private static final int PADDLE_WIDTH = 60;
+    private static final int PADDLE_WIDTH = 100;
     private static final int PADDLE_HEIGHT = 10;
     private static final int NORMAL_MOVEMENT = 20;
     private static final int FAST_MOVEMENT = 50;
