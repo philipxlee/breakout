@@ -16,7 +16,6 @@ public class Ball {
     private static final int BALL_START_Y = Main.SIZE / 2;
     private static final int BALL_VELOCITY_X = 0;
     private static final int BALL_VELOCITY_Y = 150;
-    private static final int MAX_VELOCITY_CHANGE = 120;
     private static final int VELOCITY_CHANGE_STEP = 40;
 
     private int ballVelocityX = BALL_VELOCITY_X;

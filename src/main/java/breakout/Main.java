@@ -111,7 +111,6 @@ public class Main extends Application {
     }
 
     private Scene setGameScene() {
-        // Create group
         Group root = new Group();
         root.getChildren().add(ball.getBall());
         root.getChildren().add(paddle.getPaddle());
@@ -120,7 +119,6 @@ public class Main extends Application {
         VBox overlay = createScoreboard();
         root.getChildren().add(overlay);
 
-        // Create and return scene
         myScene = new Scene(root, SIZE, SIZE, DUKE_BLUE);
         return myScene;
     }
