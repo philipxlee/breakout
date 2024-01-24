@@ -55,7 +55,7 @@
    * Players can deduce that blocks of the same color have the same health.
    * Players can deduce that black blocks are unbreakable.
    * Players can deduce that purple blocks may affect the health of other blocks.
-   * 3 lives is reasonable to beat all 3 levels.
+   * 5 lives is reasonable to beat all 3 levels.
 
 
 * Known Bugs:
@@ -65,16 +65,15 @@
 * Features implemented:
    * Paddle:
       * Warping - ability for the paddle to teleport to the other edge upon reaching an edge.
-      * Positional Bounces - the paddle is split into thirds. The left third would always cause the ball to bounce
-        to the left, and the right third will always cause the ball to bounce to the right. The middle third, however,
-        will depend on the direction the ball is making contact with the paddle. It follows the normal
-        logic of how a ball, with its momentum in the X axis, is carried over when it makes contact with a physical object.
+      * Positional Bounces - the paddle is split into 6 segments. The first 3 segments would always cause the ball to bounce
+        to the left. The more left the ball hits the paddle, the more left it goes. The last 3 segments does the same, but causes the ball
+        to bounce to the right in varying gradients. The middle of the ball, however, will not cause it to bounce left or right.
+   
 
    * Block:
       * NormalBlock - a regular block with varying colors, with each color corresponding to a certain health. When a NormalBlock is broken, there is a chance that a powerup will spawn, and its powers will be randomly selected.
       * BadBlock - a purple block that will randomly increase the health of two NormalBlocks in the screen by 1, thus changing their color, when broken.
-      * UnbreakableBlock - a black, indestructible block with a twist. When the game ball hits any corner of the UnbreakableBlock, the ball
-        will "stick" to that edge and traverse it. When it reaches the other corner, the direction is reversed.
+      * UnbreakableBlock - a black, indestructible block.
 
    * Power Ups:
       * Extend Paddle: The paddle will extend in width for 15 seconds.
@@ -85,7 +84,7 @@
 * Noteworthy Features:
    * BadBlock: Collects all the current NormalBlocks in the scene and shuffles it. Then, it takes the first two blocks in the array and increases its health,
      thus changing its color.
-
+   * UnbreakableBlock: Corners may switch velocities quickly to increase difficulty of predicting the ball.
 
 
 ### Assignment Impressions
