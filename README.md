@@ -2,16 +2,6 @@
 ## Philip Lee
 
 
-### Timeline
-
-* Start Date: 15 January, 2024
-
-* Finish Date: 23 January, 2024
-
-* Hours Spent: 30 hours
-
-
-
 ### Attributions
 
 * Oracle JavaFX Documentation -- https://docs.oracle.com/javase/8/javafx/api/toc.htm
@@ -85,11 +75,3 @@
    * BadBlock: Collects all the current NormalBlocks in the scene and shuffles it. Then, it takes the first two blocks in the array and increases its health,
      thus changing its color.
    * UnbreakableBlock: Corners may switch velocities quickly to increase difficulty of predicting the ball.
-
-
-### Assignment Impressions
-
-It was a challenging assignment in the sense that there had to be a learning curve to learn JavaFX. I initially struggled with grouping too many things together. For instance, 
-at the beginning, I didn't have separate classes for Ball and Paddle, but instead had all of these methods that altered their states within one class, which led to messy code.
-Refactoring and following best practices was also challenging, as I feel that a lot of coders have an idiosyncratic style of code. The assignment, however, was really fun and challeging,
-albeit implementation heavy.
